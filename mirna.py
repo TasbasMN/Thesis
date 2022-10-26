@@ -1,1 +1,2 @@
-import astropy as np
+def parse_fasta(fasta):
+     
