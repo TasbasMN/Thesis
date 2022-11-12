@@ -30,6 +30,21 @@ Notes: sRNA means small RNAs. In this context, sRNA is interchangable with miRNA
 | 3′-UTR offset-6mer sites                                           | Number of offset-6mer sites in the 3′ UTR [(Friedman et al., 2009)](https://elifesciences.org/articles/05005#bib58)                                                 | x          |         |
 | ORF 8mer sites                                                     | Number of 8mer sites in the ORF (Lewis et al., 2005; Reczko et al., 2012)                                                                                           | x          |         |
 
+## Final Features of Tarpmir
+
+- folding energy 
+- seed match 
+- accessibility   
+- AU content
+- stem conservation
+- flanking conservation
+- m/e motif
+- the total number of paired positions
+- the length of the target mRNA region
+- the length of the largest consecutive pairings
+- the position of the largest consecutive pairings relative to the 5′ end of miRNA
+- the number of paired positions at the miRNA 3′ end. Recall miRNA 3′ end meant the last 7 positions of a miRNA
+- the difference between the number of paired positions in the seed region and that in the miRNA 3′ end
 
 ## Extra Notes:
 
