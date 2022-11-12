@@ -18,7 +18,9 @@ Figure 3B: Weighting of the AU composition for the different types of sites. For
 
 *(MicroRNA Targeting Specificity in Mammals: Determinants beyond Seed Pairing, 2007, https://doi.org/10.1016/j.molcel.2007.06.017)*
 
+
 ## Reference Notes
 
 >Nucleotides immediately flanking the functional sites were highly enriched for A and U content relative to the nonfunctional sites. This phenomenon of high local AU content was important in the immediate vicinity of the site and then fell off quickly.
+
 *(MicroRNA Targeting Specificity in Mammals: Determinants beyond Seed Pairing, 2007, https://doi.org/10.1016/j.molcel.2007.06.017)*
