@@ -1,6 +1,24 @@
 # Canonical Vs. Noncanonical Interactions
 
+Canonical sites
+- Seed
+
+Non canonical sites
+- 3' supplementary
+- compensatory (Grimson et al., 2007; Lian et al., 2009)
+- Seedless (Lal et al., 2009)
+
+## Canonical Sites
+
 ## References
+
+>Although seed-mediated interactions constitute the largest class in our data, **only around 37% of seed interactions** involve uninterrupted Watson-Crick base pairing. This figure seemed surprisingly low but is consistent with the many observations of endogenous noncanonical miRNA targets.
+
+>To provide an overview of the key features of miRNA-mRNA interactions, we analyzed miRNA base-pairing patterns by cluster analysis. As expected, the most frequent miRNA interaction site with a target is the seed, and base pairing in this region is detected for more than half of the interactions. However, seed interactions alone are found in only a relatively small fraction of identified targets (class I, 19%). Defined classes II–III agree with previously described 3′ supplementary and compensatory sites ([Grimson et al., 2007](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3650559/#bib17); [Lian et al., 2009](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3650559/#bib31)).
+
+*(Mapping the human miRNA interactome by CLASH reveals frequent noncanonical binding, 2013, https://doi.org/10.1016/j.cell.2013.03.043)*
+
+---
 
 Noncanonical sites are sites of interaction between a mRNA and a miRNA that do not involve the canonical pairing in the seed region (positions 2 - 7) of the miRNA. They are of two types:
 - A 3' compensatory site is one in which strong 3' pairing (consequential miRNA-target complementarity outside the seed region) compensates for an imperfect seed match (Friedman et al., 2009).
@@ -9,12 +27,6 @@ Noncanonical sites are sites of interaction between a mRNA and a miRNA that do n
 *(Predicting effective microRNA target sites in mammalian mRNAs, 2015, https://doi.org/10.7554/eLife.05005)*
 
 ![](images/non_canonical.png)
-
----
-
->Centered sites, which do not appear to be functional for most miRNAs are no longer considered or displayed in TargetScan.
-
-*(The biochemical basis of microRNA targeting efficacy, 2019, https://doi.org/10.1126/science.aav1741)*
 
 ---
 

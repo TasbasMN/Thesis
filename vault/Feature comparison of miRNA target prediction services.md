@@ -83,7 +83,7 @@ Common among other tools column indicates features that had been used in existin
 
 # Extra Notes:
 
-- **The accessibility** was proposed in _(Kertesz, M., Iovino, N., Unnerstall, U., Gaul, U. and Segal, E. (2007) The role of site accessibility in microRNA target recognition. Nature genetics, 39, 1278-1284)_.
+- **The accessibility** was proposed in *(Kertesz, M., Iovino, N., Unnerstall, U., Gaul, U. and Segal, E. (2007) The role of site accessibility in microRNA target recognition. Nature genetics, 39, 1278-1284)*.
 - The **local AU content** reflects the transcript AU content 30nt upstream and downstream of predicted site.
 - **Length of target mRNA region:** For example, if miRNA x binds to mRNA y and the binding site between x and y are 28 nts region on mRNA y, this feature is 28.
 ![](images/me_motif.png)
