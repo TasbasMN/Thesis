@@ -2,7 +2,7 @@
 
 - Seed match
 - Folding energy (calculated using different modules)
-- [[local AU content.md]]
+- local AU content
 - length of the target mRNA region (TargetScan uses log value)
 - seed kmer type (8mer, 7mer-A1 etc.)
 - 3' supplementary pairing
