@@ -61,12 +61,13 @@ Common among other tools column indicates features that had been used in existin
 
 >The inclusion of the m/e motif implied that there existed preferred matching positions shared by all miRNAs. The length of the target site was selected, showing the importance of the binding preference of miRNAs to mRNA regions with specific lengths. The length of the largest consecutive pairing positions mattered, which extended the concept of seed match, as seed match was just a simple case with a long consecutive pairing positions. The difference between the number of paired positions in the seed region and that in the miRNA 3′ end also suggested that the seed match may be unimportant, given a high-quality 3′ end region matching. This also supported the idea that a long consecutive matching region is critical for functional miRNA target sites.
 
-[dingTarPmiRNewApproach2016, https://doi.org/10.1093/bioinformatics/btw318]
+(TarPmiR: A new approach for microRNA target site prediction, 2016, https://doi.org/10.1093/bioinformatics/btw318)
+
 
 ### What are the effects of new columns of Tarpmir?
 >The selected new features significantly improved the prediction accuracy of TarPmiR. To show the contribution of the new features to the accuracy of TarPmiR, we removed the seven new features and retrained random forests in TarPmiR. Compared with the original TarPmiR with 13 features, the recall and precision of the modified TarPmiR dropped 8.6% and 9.7%, respectively.
 
-[dingTarPmiRNewApproach2016, https://doi.org/10.1093/bioinformatics/btw318]
+(TarPmiR: A new approach for microRNA target site prediction, 2016, https://doi.org/10.1093/bioinformatics/btw318)
 
 ## Extra Notes:
 
