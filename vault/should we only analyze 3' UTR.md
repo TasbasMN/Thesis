@@ -11,3 +11,6 @@
 ## Why Does miRWalk Search Possible miRNA Binding Sites Within the Complete Sequence of a Gene?
 
 >For more than a decade, attempts to study the  interaction of miRNAs with their targets were limited to the mRNA 3'-UTR  region. However, several investigators have recently suggested an  alternative mode of gene regulation in which miRNAs anneal within the  cds, 5'- and/or 3'-UTR regions of their targets thereby regulating their  translation. Therefore, it is of paramount importance to search  possible miRNA binding sites within the **complete sequence** (5'-UTR, CDS and 3'-UTR) of a gene.
+
+
+[Feature comparison of miRNA target prediction services](Feature%20comparison%20of%20miRNA%20target%20prediction%20services.md)
