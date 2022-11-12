@@ -2,6 +2,31 @@
 
 This is the repository of my master's thesis.
 
+## Can We Access These?
+
+- [Machine Learning Based Methods and Best Practices of microRNA-Target Prediction and Validation](https://pubmed.ncbi.nlm.nih.gov/36352212/)
+Published 3 days ago
+
+## Meeting Notes
+
+Available prediction tools that we can use:
+- [miTAR](https://github.com/tjgu/miTAR)
+	- This is available as a conda package.
+- [DMISO](https://www.nature.com/articles/s41598-022-14890-8), https://hulab.ucf.edu/research/projects/DMISO/
+Has methods on how to analyse CLASH NGS data
+Hint: Tarpmir also used CLASH data from the same study
+Available as python package
+
+- [RPmirDIP](https://borealisdata.ca/dataset.xhtml?persistentId=doi:10.5683/SP2/LD8JKJ) has a data dump of predicted mRNA - miRNA interactions
+
+- [metaRNA](https://github.com/prashnts/metaRNA)
+Python library for calculating free energy and predicting targets for miRNAs.
+
+- [miRmap](https://github.com/prashnts/mirmap)
+This is discontinued in favor of metaRNA
+
+- [SeqFold](https://pypi.org/project/seqfold/) package can be used to calculate free energy of miRNA molecules. This might be a feature in the model.
+
 ## Folders
 
 - vault: contains .md formatted notes.

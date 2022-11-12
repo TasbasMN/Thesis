@@ -1,4 +1,4 @@
-# Prediction of miRNA targets
+# Prediction of miRNA Targets
 
 *(Prediction of miRNA targets, 2015, https://doi.org/10.1007/978-1-4939-2291-8_13)*
 
@@ -11,7 +11,6 @@
 ### Optional Features
 
 These features are used to minimize false positives (increase specificity)
-
 
 - [Folding Energy](../Feature%20Columns/Folding%20Energy.md)
 - evolutionary conservation of seed site
@@ -45,6 +44,5 @@ Other sites
 Brennecke et al. separated target sites into 2 groups based on experimental evidence
 - 5' dominant (sites that depend critically on the pairing to the miRNA 5′ end)
 - 3' compensatory (include seed matches of four to six base pairs and seeds of seven to eight bases that contain G–U base pairs, single nucleotide bulges, or mismatches and a extensive pairing to the 3′end of the miRNA)
-
 
 *(Principles of microRNA-target recognition, 2005, https://doi.org/10.1371/journal.pbio.0030085)*

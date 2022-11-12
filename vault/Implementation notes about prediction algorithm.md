@@ -55,3 +55,7 @@ TargetScan discards other mRNA regions than 3' UTR. TargetScan also discards fir
 >For instance, although matching seed is not always sufficient for a functional miRNA–mRNA interaction (Brennecke et al., 2005; Didiano and Hobert, 2006), it has been thought to be necessary for most animal miRNA–mRNA binding. **However, studies have shown non-canonical pairings that allow G:U wobbles and even mismatches can be functional (Brennecke et al., 2005; Didiano and Hobert, 2006).**
 
 *(TarPmiR: A new approach for microRNA target site prediction, 2016, https://doi.org/10.1093/bioinformatics/btw318)*
+
+---
+
+There are some implementation notes found in [miRmap](Literature%20Notes/miRmap.md).
