@@ -1,4 +1,5 @@
 
+## Table
 Notes: sRNA means small RNAs. In this context, sRNA is interchangable with miRNA.
 
 
@@ -30,21 +31,42 @@ Notes: sRNA means small RNAs. In this context, sRNA is interchangable with miRNA
 | 3′-UTR offset-6mer sites                                           | Number of offset-6mer sites in the 3′ UTR [(Friedman et al., 2009)](https://elifesciences.org/articles/05005#bib58)                                                 | x          |         |
 | ORF 8mer sites                                                     | Number of 8mer sites in the ORF (Lewis et al., 2005; Reczko et al., 2012)                                                                                           | x          |         |
 
-## Final Features of Tarpmir
+## Features of Tarpmir
 
-- folding energy 
-- seed match 
-- accessibility   
-- AU content
-- stem conservation
-- flanking conservation
-- m/e motif
-- the total number of paired positions
-- the length of the target mRNA region
-- the length of the largest consecutive pairings
-- the position of the largest consecutive pairings relative to the 5′ end of miRNA
-- the number of paired positions at the miRNA 3′ end. Recall miRNA 3′ end meant the last 7 positions of a miRNA
-- the difference between the number of paired positions in the seed region and that in the miRNA 3′ end
+Common features column indicates features that have been selected **significant** by all of the 4 ML models.
+Common among other tools column indicates features that had been used in existing tools [(Peterson et al., 2014)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5018371/#btw318-B36).
+
+| All Considered Features                                                                                                 | Final Features | Common features | Common among other tools |
+| ----------------------------------------------------------------------------------------------------------------------- | -------------- | --------------- | ------------------------ |
+| folding energy                                                                                                          | x              | x               | x                        |
+| seed match                                                                                                              | x              | x               | x                        |
+| site accessibility                                                                                                      | x              | x               | x                        |
+| AU content                                                                                                              | x              | x               | x                        |
+| stem conservation                                                                                                       | x              | x               | x                        |
+| flanking conservation                                                                                                   | x              | x               | x                        |
+| difference between stem and flanking conservation                                                                       |                |                 | x                        |
+| m/e motif                                                                                                               | x              | x               |                          |
+| the total number of paired positions                                                                                    | x              |                 |                          |
+| the length of the target mRNA region                                                                                    | x              | x               |                          |
+| the length of the largest consecutive pairs                                                                             | x              | x               |                          |
+| the position of the largest consecutive pairs relative to the miRNA 5′ end                                              | x              |                 |                          |
+| the length of the largest consecutive pairs allowing 2 mismatches                                                       |                |                 |                          |
+| the position of the largest consecutive pairs allowing 2 mismatches                                                     |                |                 |                          |
+| the number of paired positions at the miRNA 3′ end, where 3′ miRNA end was defined as the last 7 positions of the miRNA | x              |                 |                          |
+| the total number of paired positions in the seed region and the miRNA 3′ end                                            |                |                 |                          |
+| the difference between the number of paired positions in the seed region and that in the miRNA 3′ end                   | x              | x                |                          |
+| exon preference                                                                                                         |                |                 |                          |
+
+### Biological interpretation of m/e motif:
+
+>The inclusion of the m/e motif implied that there existed preferred matching positions shared by all miRNAs. The length of the target site was selected, showing the importance of the binding preference of miRNAs to mRNA regions with specific lengths. The length of the largest consecutive pairing positions mattered, which extended the concept of seed match, as seed match was just a simple case with a long consecutive pairing positions. The difference between the number of paired positions in the seed region and that in the miRNA 3′ end also suggested that the seed match may be unimportant, given a high-quality 3′ end region matching. This also supported the idea that a long consecutive matching region is critical for functional miRNA target sites.
+
+[dingTarPmiRNewApproach2016, https://doi.org/10.1093/bioinformatics/btw318]
+
+### What are the effects of new columns of Tarpmir?
+>The selected new features significantly improved the prediction accuracy of TarPmiR. To show the contribution of the new features to the accuracy of TarPmiR, we removed the seven new features and retrained random forests in TarPmiR. Compared with the original TarPmiR with 13 features, the recall and precision of the modified TarPmiR dropped 8.6% and 9.7%, respectively.
+
+[dingTarPmiRNewApproach2016, https://doi.org/10.1093/bioinformatics/btw318]
 
 ## Extra Notes:
 
