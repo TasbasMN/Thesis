@@ -3,7 +3,6 @@
 
 
 
-
 ## References
 
 Noncanonical sites are sites of interaction between a mRNA and a miRNA that do not involve the canonical pairing in the seed region (positions 2 - 7) of the miRNA. They are of two types:
@@ -23,4 +22,6 @@ Centered sites, which do not appear to be functional for most miRNAs are no long
 However, since a 6 nt match presents on average every ∼4,000 nt, likely to be occurred often by chance, such strategies still suffer from both false-positive (∼40–66%) and false-negative predictions (∼50–70%) ([Mourelatos, 2008](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4870184/#b55-molce-39-5-375)) even in the usage of microarray or proteomic approaches ([Baek et al., 2008](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4870184/#b3-molce-39-5-375); [Selbach et al., 2008](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4870184/#b66-molce-39-5-375)). Furthermore, seed-pairing rules cannot identify non-canonical target sites, which have been reported as functional ([Brodersen and Voinnet, 2009](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4870184/#b8-molce-39-5-375)).
 [@seokMicroRNATargetRecognition2016]
 
-![[seokMicroRNATargetRecognition2016.png]]
+![[images/seokMicroRNATargetRecognition2016.png]]
+
+![[images/seokMicroRNATargetRecognition2016-2.jpg]]
