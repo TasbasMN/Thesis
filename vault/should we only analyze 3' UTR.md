@@ -1,4 +1,4 @@
-
+# For:
 
 >**Sites in 5'UTRs, in ORFs, or within 15 nt of the stop codon were excluded, in accord with our results showing that such sites were generally not effective.**
 
@@ -9,3 +9,9 @@
 
 [@grimsonMicroRNATargetingSpecificity2007]
 
+
+# Against:
+
+>#### Why does miRWalk search possible miRNA binding sites within the complete sequence of a gene?
+
+>For more than a decade, attempts to study the  interaction of miRNAs with their targets were limited to the mRNA 3'-UTR  region. However, several investigators have recently suggested an  alternative mode of gene regulation in which miRNAs anneal within the  cds, 5'- and/or 3'-UTR regions of their targets thereby regulating their  translation. Therefore, it is of paramount importance to search  possible miRNA binding sites within the **complete sequence** (5'-UTR, CDS and 3'-UTR) of a gene.
