@@ -1,4 +1,4 @@
-# local AU context
+# Local AU Context
 
 ## Biological Intuition:
 

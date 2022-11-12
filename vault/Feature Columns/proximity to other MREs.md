@@ -1,4 +1,4 @@
-# proximity to other MREs
+# Proximity to Other MREs
 
 >**Cooperation between multiple RISC's requires target sites to be close and is most effective when the distance is between 13 and 35 nt.**
 

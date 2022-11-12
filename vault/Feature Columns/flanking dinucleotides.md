@@ -1,4 +1,4 @@
-# flanking dinucleotides
+# Flanking Dinucleotides
 
 >AU-rich nucleotide composition immediately flanking miRNA sites has long been associated with increased site conservation and efficacy in cells ([13](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7051167/#R13), [31](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7051167/#R31), [32](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7051167/#R32))
 

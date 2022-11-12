@@ -1,4 +1,4 @@
-# number of total WC pairs
+# Number of Total WC Pairs
 
 The total number of WC pairs found between miRNA and mRNA, regardless of their position.
 

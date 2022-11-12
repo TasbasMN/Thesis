@@ -1,9 +1,9 @@
-# Canonical vs. Noncanonical interactions
+# Canonical Vs. Noncanonical Interactions
 
 ## References
 
 Noncanonical sites are sites of interaction between a mRNA and a miRNA that do not involve the canonical pairing in the seed region (positions 2 - 7) of the miRNA. They are of two types:
-- A 3' compensatory site is one in which strong 3' pairing (consequential miRNA-target complementarity outside the seed region) compensates for an imperfect seed match (Friedman et al., 2009). 
+- A 3' compensatory site is one in which strong 3' pairing (consequential miRNA-target complementarity outside the seed region) compensates for an imperfect seed match (Friedman et al., 2009).
 - A centered site is one that lacks perfect seed pairing and 3'-compensatory pairing but instead has 11-12 contiguous Watson-Crick pairs to miRNA positions 4-15. These are identified only in the reference species and therefore include no information about conservation.
 
 *(Predicting effective microRNA target sites in mammalian mRNAs, 2015, https://doi.org/10.7554/eLife.05005)*
