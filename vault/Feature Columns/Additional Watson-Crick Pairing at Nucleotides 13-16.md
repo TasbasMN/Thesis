@@ -1,3 +1,4 @@
+# Additional Watson-Crick Pairing at Nucleotides 13-16
 
 > Overall, consequential pairing preferentially involved Watson-Crick pairing to miRNA nucleotides 12–17, most especially nucleotides 13–16
 
@@ -5,6 +6,6 @@
 
 ![](../images/additional_pairing.png)
 
-## Other notes:
+## Other Notes:
 
 3' pairing can help compensate for imperfect seed pairing ([Doench and Sharp, 2004](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3800283/#R4); [Brennecke et al., 2005](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3800283/#R3))
