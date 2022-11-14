@@ -1,4 +1,8 @@
-# Additional Watson-Crick Pairing at Nucleotides 13-16
+# 3′ Supplementary Pairing
+
+This feature looks for additional Watson-Crick pairing at bucleotides 13-16
+
+---
 
 > Overall, consequential pairing preferentially involved Watson-Crick pairing to miRNA nucleotides 12–17, most especially nucleotides 13–16
 

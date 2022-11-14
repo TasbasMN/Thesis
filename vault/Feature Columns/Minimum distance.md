@@ -1,4 +1,10 @@
-# Distance to the Ends of 3' UTR
+# Minimum Distance
+
+This feature includes the distance of target MRE site to the ends of 3' UTR.
+
+The more MRE nears to ends of 3' UTR, the better.
+
+---
 
 > When examining whether the location of the site within the remainder of the 3'UTR influenced performance, we found that sites residing near the two ends of long UTRs generally were more effective than those near the center ([Figures 5A](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3800283/figure/F5/); _P_ = 0.0011, Pearson correlation).
 

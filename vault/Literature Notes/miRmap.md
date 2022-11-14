@@ -2,6 +2,11 @@
 
 *(miRmap: Comprehensive prediction of microRNA target repression strength, 2012, https://doi.org/10.1093/nar/gks901)*
 
+This note contains implementation notes of features:
+- Thermodynamics
+- Motif occurence
+- Conservation
+
 ---
 
 ## Target Prediction Features

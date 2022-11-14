@@ -24,6 +24,4 @@ miRAW leveraged autoencoders without the denoising step[25](https://www.nature.c
 
 TarPMir used a Random Forest (RF) classifier trained on an experimentally validated dataset[20](https://www.nature.com/articles/s41598-020-68251-4#ref-CR20 "Ding, J., Li, X. & Hu, H. Tarpmir: a new approach for microrna target site prediction. Bioinformatics 32, 2768–2775 (2016).").
 
-RFMirTarget also used a Random Forest classifier, however it was trained on data originally pre-computed by miRanda, thus acting as a cascaded refinement of *ab initio* predictions[21](https://www.nature.com/articles/s41598-020-68251-4#ref-CR21 "Mendoza, M. R. et al. RFMirTarget: predicting human microRNA target genes with a random forest classifier. PLoS One
-https://doi.org/10.1371/journal.pone.0070153
-(2013).").
+RFMirTarget also used a Random Forest classifier, however it was trained on data originally pre-computed by miRanda, thus acting as a cascaded refinement of *ab initio* predictions[21]

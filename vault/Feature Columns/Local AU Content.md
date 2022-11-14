@@ -1,5 +1,7 @@
 # Local AU Context
 
+This feature checks the transcript AU content 30nt upstream and downstream of predicted site
+
 ## Biological Intuition:
 
 **mRNAs that need to be regulated (by miRNAs) would have AU-rich 3' UTR's.**
@@ -16,11 +18,5 @@ We developed a rubric that considered the composition of residues 30 nt upstream
 
 ![](../images/au_content.png)
 Figure 3B: Weighting of the AU composition for the different types of sites. For each position within 30 nt upstream and downstream of the site, the presence of an A or a U increased the score for the site by an amount proportional to the height of the bar for that nucleotide. When moving away from the site, the weight (bar height) decreased with the inverse of the distance from the site. For example, the weight of the nucleotides downstream of the 8mer were 1/2, 1/3, 1/4, 1/5 … that of the nucleotide upstream of the 8mer.
-
-*(MicroRNA Targeting Specificity in Mammals: Determinants beyond Seed Pairing, 2007, https://doi.org/10.1016/j.molcel.2007.06.017)*
-
-## Reference Notes
-
->Nucleotides immediately flanking the functional sites were highly enriched for A and U content relative to the nonfunctional sites. This phenomenon of high local AU content was important in the immediate vicinity of the site and then fell off quickly.
 
 *(MicroRNA Targeting Specificity in Mammals: Determinants beyond Seed Pairing, 2007, https://doi.org/10.1016/j.molcel.2007.06.017)*

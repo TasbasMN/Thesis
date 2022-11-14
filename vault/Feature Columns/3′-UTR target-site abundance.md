@@ -1,4 +1,8 @@
-# Proximity to Other MREs
+# 3′-UTR Target-site Abundance
+
+This feature checks if there are any cooperation between RISC complexes bound to neighboring MREs
+
+---
 
 >**Cooperation between multiple RISC's requires target sites to be close and is most effective when the distance is between 13 and 35 nt.**
 
