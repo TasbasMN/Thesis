@@ -32,7 +32,7 @@ To determine which method to be used, we randomly chose 10 000 positive sites an
 
 We also collected two independent PAR-CLIP datasets from the human HEK293 cell line for testing. PAR-CLIP datasets were used because a large number of potential miRNA target regions called crosslink-centered regions (CCRs) could be obtained from PAR-CLIP. CCRs were considered as positive target sites.
 
-To test TarPmiR on general datasets, we compared the TarPmiR predictions with the experimentally validated miRNA targets by general methods in TarBase 7.0 (Vlachos et al., 2014).
+To test TarPmiR on general datasets, we compared the TarPmiR predictions with the experimentally validated miRNA targets by general methods in [TarBase](miRNA%20Databases/TarBase.md) 7.0 (Vlachos et al., 2014).
 
 The output of the random-forest model is the predicted probability that a candidate target site is a true target site. We have compared nine probability cutoffs to define target sites using the F2 score, since we put more emphasis on the recall than the precision. The cutoffs 0.5 and 0.6 have almost the similar F2 scores, while the cutoff 0.5 has the largest recall ([Supplementary File S2](http://bioinformatics.oxfordjournals.org/lookup/suppl/doi:10.1093/bioinformatics/btw318/-/DC1)). Therefore, we used 0.5 for the following analyses. We provide a parameter –_p_ in TarPmiR, users can choose other cutoffs based on their own needs.
 

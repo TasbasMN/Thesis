@@ -20,4 +20,4 @@ hsa-miR-24-3p	NM_001256426	PDLIM5	64,89	TGGCTCAGTTCAGCAGGAACAG#TTTCTGTCATTGGACTT
 - Whole exome, instead of only focusing to 3' UTR
 - Their human predictions of 5' UTR, CDS and 3' UTR are readily available in their [resources page](http://mirwalk.umm.uni-heidelberg.de/resources/) (~16gb total)
 - Uses TarpmiR algorithm and 2 other databases (TargetScan and miRDB) to fine tune predictions
-- Validates predictions from miRTarBase
+- Validates predictions from [miRTarBase](miRTarBase.md)

@@ -12,9 +12,9 @@ Table 5.1 Selected miRNA-target prediction online tools and validation resources
 
 ## miRNA-Target Prediction Validation Databases
 
-**DIANA-TarBase v8 (1/2018)** database reports on experimentally supported miRNA targets. **This resource is considered a benchmark for several prediction methods.** The current TarBase reports on ~670 k unique miRNA-target pairs.
+**DIANA [TarBase](../miRNA%20Databases/TarBase.md) v8 (1/2018)** database reports on experimentally supported miRNA targets. **This resource is considered a benchmark for several prediction methods.** The current TarBase reports on ~670 k unique miRNA-target pairs.
 
-**miRTarBase 2020 (1/2020)** is a comprehensive resource of experimentally validated miRNA-target interactions (denoted MTIs). miRTarBase is a rich experimentally validated MTI database with comprehensively annotated information (Huang et al. 2020).
+**[miRTarBase](../miRNA%20Databases/miRTarBase.md) 2020 (1/2020)** is a comprehensive resource of experimentally validated miRNA-target interactions (denoted MTIs). miRTarBase is a rich experimentally validated MTI database with comprehensively annotated information (Huang et al. 2020).
 
 ## miRNA Sponging: ceRNA and lncRNA Interactions
 

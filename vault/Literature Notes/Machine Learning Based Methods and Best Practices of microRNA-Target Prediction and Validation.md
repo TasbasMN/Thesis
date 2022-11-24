@@ -86,9 +86,9 @@ Fig. 4.3 Timeline for ML-based miRNA target prediction tools.
 ![](../images/ml_based_5.png)
 
 Positive target datasets:
-- miRBase (Kozomara et al. 2019)
-- MiRTarBase (Hsu et al. 2011)
-- DIANA-TarBase (Karagkouni et al. 2018)
+- [miRBase](../miRNA%20Databases/miRBase.md) (Kozomara et al. 2019)
+- [miRTarBase](../miRNA%20Databases/miRTarBase.md) (Hsu et al. 2011)
+- DIANA [TarBase](../miRNA%20Databases/TarBase.md) (Karagkouni et al. 2018)
 - miRecords (Xiao et al. 2009) **not working**
 
 **The positive dataset can introduce bias caused by cell type, condition, and laboratory approaches (Schafer and Ciaudo 2020).**
