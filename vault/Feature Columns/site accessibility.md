@@ -1,5 +1,11 @@
 # Site Accessibility
 
+The accessibility is calculated using the cost of free energy to unfold the mRNA at the seed region to bind the miRNA (Kertesz et al. 2007).
+
+*(Machine Learning Based Methods and Best Practices of microRNA-Target Prediction and Validation, 2022, https://doi.org/10.1007/978-3-031-08356-3_4)*
+
+---
+
 TargetScan uses the following criteria:
 - Probability that a 14 nt segment centered on the match to sRNA positions 7 and 8 is unpaired
 
