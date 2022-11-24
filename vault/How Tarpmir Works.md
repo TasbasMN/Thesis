@@ -22,7 +22,8 @@ We downloaded 18 514 miRNA target sites of 399 miRNAs from CLASH experiments (He
 We also generated 18 514 corresponding negative or ‘false’ target sites in a manner similar to a previous study (Li et al., 2014), with the following criteria:
 - A positive site and its corresponding negative site are on the same mRNA
 - The positive and its corresponding negative site has similar CG dinucleotide frequency
-- The positive and its corresponding negative site has similar number of the nucleotide G; (iv) A negative site does not overlap with any positive site
+- The positive and its corresponding negative site has similar number of the nucleotide G
+- A negative site does not overlap with any positive site
 - With multiple candidate negative sites in an mRNA, select the one with the lowest folding energy.
 
 ### Testing
