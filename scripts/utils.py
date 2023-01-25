@@ -1,14 +1,23 @@
+from collections import defaultdict
+
 from Bio import SeqIO
 import pandas as pd
-from collections import defaultdict
 
 import matplotlib.pyplot as plt
 import matplotlib_venn as venn
 
-import numpy as np
-
 
 def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True):
+    """function that find matches between a sequence and a mirna dataframe
+
+    Args:
+        sequence (str): sequence string
+        mirna_df (df): miRNA dataframe
+        ignore_first_15_nucleotides (bool, optional): if True, removes matches found in the first 15 nucleotides. Defaults to True.
+
+    Returns:
+        df: df containing matches
+    """
 
     # unpacking mirna_df input
     db_names = mirna_df["name"].values.tolist()
@@ -95,7 +104,7 @@ def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True):
 
     # step 6: extra option for UTR sequences
 
-    if ignore_first_15_nucleotides == True:
+    if ignore_first_15_nucleotides:
 
         df = df[df["start"] > 15]
 
@@ -110,6 +119,14 @@ def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True):
 
 
 def import_fasta(fasta):
+    """imports fasta into a string
+
+    Args:
+        fasta (file): fasta file
+
+    Returns:
+        str: sequence string
+    """
 
     with open(fasta) as f:
         records = SeqIO.parse(f, "fasta")
@@ -118,6 +135,8 @@ def import_fasta(fasta):
 
 
 def complement(string):
+    """function that computes the complement of a string
+    """
 
     result = ""
     for nuc in string:
@@ -133,23 +152,35 @@ def complement(string):
 
 
 def uracil_to_thymine(string):
+    """changes uracils into thymines
+    """
+
     return "".join("T" if nuc == "U" else nuc for nuc in string)
 
 
 def mirna_to_mrna(string):
+    """function that converts a mirna string into a mrna string
+    """
+
     return complement(string[::-1])
 
 
 def dna_to_mrna(string):
+    """function that converts a dna string into a mrna string
+    """
     return "".join("U" if nuc == "T" else nuc for nuc in string)
 
 
 def sliding_window(sequence, win_size):
+    """function that creates a sliding window
+    """
     for i in range(len(sequence) - win_size + 1):
         yield sequence[i: i + win_size]
 
 
 def compare_mirna_dataframes(mirbase, targetscan):
+    """function that compares 2 dataframes
+    """
 
     mirbase_copy = mirbase.copy()
     targetscan_copy = targetscan.copy()
@@ -177,6 +208,8 @@ def compare_mirna_dataframes(mirbase, targetscan):
 
 
 def create_venn_diagrams(mirbase_set, targetscan_set, canonical_set):
+    """function that creates venn diagrams
+    """
 
     total1 = len(mirbase_set.union(targetscan_set))
     venn.venn2(
@@ -224,6 +257,8 @@ def create_venn_diagrams(mirbase_set, targetscan_set, canonical_set):
 
 
 def plot_venn_diagram(s1, s2, s1_name="set1", s2_name="set2"):
+    """function that plots a venn diagram
+    """
 
     total_number = len(s1.union(s2))
     venn.venn2(
@@ -239,6 +274,9 @@ def plot_venn_diagram(s1, s2, s1_name="set1", s2_name="set2"):
 
 
 def parse_targetscan_result_file(f):
+    """function that parses a targetscan result file
+    """
+
     df = pd.read_csv(f, sep="\t")
     # df = df.drop([df.index[0], df.index[1], df.index[2]])
 
@@ -261,6 +299,9 @@ def parse_targetscan_result_file(f):
 
 
 def analyze_differences_between_sets(s1, s2):
+    """function that analyzes the differences between two sets
+    """
+
     diff = s1.difference(s2)
 
     s1_names = []
@@ -333,6 +374,8 @@ def analyze_differences_between_sets(s1, s2):
 
 
 def create_comparison_set(df):
+    """function that creates a comparison set
+    """
 
     names = df["name"].values.tolist()
     coords = df["coordinates"].values.tolist()
@@ -341,3 +384,69 @@ def create_comparison_set(df):
     zipped_strings = [f"{m}_{n}" for m, n in zip(names, coords)]
 
     return set(zipped_strings)
+
+
+def pretty_print(df):
+    """prints a dataframe in monospaced format
+    """
+    return df.style.set_properties(**{'text-align': 'left', 'white-space': 'pre-wrap'}).set_table_styles([dict(selector="", props=[("font-size", "12pt"), ("font-family", 'Courier')])])
+
+
+def print_results(df, sequence):
+    """prints match results in TargetScan style
+
+    Args:
+        df (dataframe): df containing find_matches() results
+        sequence (str): sequence string
+
+    Returns:
+        dataframe: df containing multiline strings in TargetScan style
+    """
+    # pythonic
+    names = df["name"].tolist()
+    match_types = df["match_type"].tolist()
+    starts = df["start"].tolist()
+    ends = df["end"].tolist()
+    mirna_sequences = df["mirna_sequence"].tolist()
+
+    result_strings = []
+
+    # creates DNA and miRNA string
+
+    for i, _ in enumerate(names):
+
+        # for i in range(len(names)):
+
+        # pythonic
+        mirna_sequence = mirna_sequences[i]
+        dna_start = (starts[i] - 24) if starts[i] > 25 else 0
+        dna_end = ends[i]
+        sequence_slice = sequence[dna_start:dna_end]
+        whitespace_length = len(sequence_slice) - len(mirna_sequence)
+
+        # creating sequence strings
+        dna_string = f"5' {uracil_to_thymine(sequence_slice)} 3' position: {dna_start+1}-{dna_end} of DNA"
+        mirna_string = "3' " + whitespace_length * \
+            (" ") + complement(mirna_sequences[i]) + " 5' " + names[i]
+
+        # creating middle string
+        middle_string = ""
+
+        c = -1
+        for nucleotide in reversed(mirna_sequence):
+            if match_types[i] == "7mer-m8":
+                middle_string += "|" if nucleotide == sequence_slice[c+1] else " "
+            else:
+                middle_string += "|" if nucleotide == sequence_slice[c] else " "
+            c -= 1
+
+        # +3 in whitespace_length corresponds to the "5' " part of the sequence strings
+        middle_string = (whitespace_length+3)*(" ") + middle_string[::-1]
+        final_string = f"{dna_string}\n{middle_string}\n{mirna_string}"
+        result_strings.append(final_string)
+
+        # df that contains final results
+        df = pd.DataFrame(list(zip(result_strings, match_types)),
+                          columns=["results", "match_types"])
+
+    return pretty_print(df)
