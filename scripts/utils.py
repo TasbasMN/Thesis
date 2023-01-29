@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib_venn as venn
 
 
-def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True):
+def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mers=False):
+    # sourcery skip: low-code-quality
     """function that find matches between a sequence and a mirna dataframe
 
     Args:
@@ -74,6 +75,11 @@ def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True):
                     end_coords.append(c + 6)
                     seed_matches.append(chunk[:7])
 
+                elif find_6mers:
+                    match_types.append("6mer")
+                    start_coords.append(c+1)
+                    end_coords.append(c + 6)
+                    seed_matches.append(chunk[1:7])
                 else:
                     continue
 
@@ -434,7 +440,7 @@ def print_results(df, sequence):
 
         c = -1
         for nucleotide in reversed(mirna_sequence):
-            if match_types[i] == "7mer-m8":
+            if match_types[i] in ["7mer-m8", "6mer"]:
                 middle_string += "|" if nucleotide == sequence_slice[c+1] else " "
             else:
                 middle_string += "|" if nucleotide == sequence_slice[c] else " "
