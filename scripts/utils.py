@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib_venn as venn
 
 
-def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mers=False):
+def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mers=False, comparison_columns=False):
     # sourcery skip: low-code-quality
     """function that find matches between a sequence and a mirna dataframe
 
@@ -15,7 +15,7 @@ def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mer
         sequence (str): sequence string
         mirna_df (df): miRNA dataframe
         ignore_first_15_nucleotides (bool, optional): if True, removes matches found in the first 15 nucleotides. Defaults to True.
-
+        find_6mers (bool, optional): if True, finds 6mer matches too. Defaults to False.
     Returns:
         df: df containing matches
     """
@@ -77,7 +77,7 @@ def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mer
 
                 elif find_6mers:
                     match_types.append("6mer")
-                    start_coords.append(c+1)
+                    start_coords.append(c + 1)
                     end_coords.append(c + 6)
                     seed_matches.append(chunk[1:7])
                 else:
@@ -115,12 +115,14 @@ def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mer
         df = df[df["start"] > 15]
 
     # step 7: generating new columns
+    if comparison_columns:
 
-    df["coordinates"] = [f"{start}-{end}" for start,
-                         end in zip(df["start"], df["end"])]
+        df["coordinates"] = [f"{start}-{end}" for start,
+                             end in zip(df["start"], df["end"])]
 
-    df["comparison"] = [f"{a}_{b}_{c}" for a,
-                        b, c in zip(df.name, df.start, df.end)]
+        df["comparison"] = [f"{a}_{b}_{c}" for a,
+                            b, c in zip(df.name, df.start, df.end)]
+
     return df
 
 
@@ -284,7 +286,6 @@ def parse_targetscan_result_file(f):
     """
 
     df = pd.read_csv(f, sep="\t")
-    # df = df.drop([df.index[0], df.index[1], df.index[2]])
 
     df.columns = [
         "name",
@@ -418,10 +419,7 @@ def print_results(df, sequence):
     result_strings = []
 
     # creates DNA and miRNA string
-
     for i, _ in enumerate(names):
-
-        # for i in range(len(names)):
 
         # pythonic
         mirna_sequence = mirna_sequences[i]
