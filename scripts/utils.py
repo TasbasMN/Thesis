@@ -142,10 +142,19 @@ def import_fasta(fasta):
         return "".join(transcripts)
 
 
-def complement(string):
-    """function that computes the complement of a string
+def sliding_window(sequence, win_size):
+    """function that creates a sliding window
     """
+    for i in range(len(sequence) - win_size + 1):
+        yield sequence[i: i + win_size]
 
+
+########################################################################################################################
+# string manipulation functions
+
+def complement(string):
+    """computes the complement of a nucleic acid sequence
+    """
     result = ""
     for nuc in string:
         if nuc == "A":
@@ -162,28 +171,23 @@ def complement(string):
 def uracil_to_thymine(string):
     """changes uracils into thymines
     """
-
     return "".join("T" if nuc == "U" else nuc for nuc in string)
 
 
 def mirna_to_mrna(string):
-    """function that converts a mirna string into a mrna string
+    """converts a miRNA string into a mRNA string
     """
-
     return complement(string[::-1])
 
 
 def dna_to_mrna(string):
-    """function that converts a dna string into a mrna string
+    """converts a dna string into a mrna string
     """
     return "".join("U" if nuc == "T" else nuc for nuc in string)
 
 
-def sliding_window(sequence, win_size):
-    """function that creates a sliding window
-    """
-    for i in range(len(sequence) - win_size + 1):
-        yield sequence[i: i + win_size]
+########################################################################################################################
+# db comparison tools
 
 
 def compare_mirna_dataframes(mirbase, targetscan):
@@ -393,6 +397,9 @@ def create_comparison_set(df):
     return set(zipped_strings)
 
 
+########################################################################################################################
+# TargetScan style printing
+
 def pretty_print(df):
     """prints a dataframe in monospaced format
     """
@@ -454,3 +461,68 @@ def print_results(df, sequence):
                           columns=["results", "match_types"])
 
     return pretty_print(df)
+
+
+########################################################################################################################
+# feature column generator functions
+
+def unpack_results_df(results_df):
+    """unpacks results dataframe in a tidy way
+
+    Args:
+        results_df (pd.DataFrame): results of find_matches()
+    """
+    names = results_df.name.tolist()
+    mirna_sequences = results_df.mirna_sequence.tolist()
+    match_types = results_df.match_type.tolist()
+    starts = results_df.start.tolist()
+    ends = results_df.end.tolist()
+
+    return names, match_types, mirna_sequences, starts, ends
+
+
+def generate_3utr_length_column(sequence, results_df):
+    """
+        generates 3' UTR length column
+
+    Args:
+        sequence (str): sequence
+        results_df (pd.DataFrame): results dataframe
+    """
+    results_df["3utr_length"] = len(sequence)
+    return results_df
+
+
+def generate_3_supplementary_pairing_column(sequence, results_df):
+    """
+        generates 3' supplementary pairing column
+
+    Args:
+        sequence (str): sequence
+        results_df (pd.DataFrame): results dataframe
+    """
+    names, match_types, mirna_sequences, starts, ends = unpack_results_df(
+        results_df)
+
+    results = []
+
+    # main loop
+    for i in range(len(names)):
+
+        supplementary_start = (
+            starts[i] - 10) if match_types[i] in ["8mer", "7mer-m8"] else (starts[i] - 11)
+        supplementary_end = starts[i] - \
+            6 if match_types[i] in ["8mer", "7mer-m8"] else (starts[i] - 7)
+
+        supplementary_dna_sequence = (
+            sequence[supplementary_start:supplementary_end])
+        supplementary_mirna_sequence = mirna_sequences[i][-16:-12]
+
+        if supplementary_dna_sequence == supplementary_mirna_sequence:
+            results.append(True)
+        else:
+            results.append(False)
+
+    results_df["3_supplementary_pairing"] = results
+
+    return results_df
