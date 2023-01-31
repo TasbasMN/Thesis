@@ -1,4 +1,6 @@
 from collections import defaultdict
+from itertools import pairwise, combinations
+
 
 from Bio import SeqIO
 import pandas as pd
@@ -519,10 +521,136 @@ def generate_3_supplementary_pairing_column(sequence, results_df):
         supplementary_mirna_sequence = mirna_sequences[i][-16:-12]
 
         if supplementary_dna_sequence == supplementary_mirna_sequence:
-            results.append(True)
+            results.append(1)
         else:
-            results.append(False)
+            results.append(0)
 
     results_df["3_supplementary_pairing"] = results
 
+    return results_df
+
+
+def create_abundance_dict(results_df):
+    """creates a dictionary with miRNA names as keys and their average MRE positions as values, only for miRNAs that have >= 2 MREs
+
+    Args:
+        results_df (pd.DataFrame): results from find_matches()
+
+    Returns:
+        dict: dictionary with miRNA names as keys and their average MRE positions as values
+    """
+
+    names = results_df.name.tolist()
+    starts = results_df.start.tolist()
+    ends = results_df.end.tolist()
+
+    abundance_dict = {}
+
+    # populating the dict
+    for c, mirna in enumerate(names):
+
+        avg_position = int((starts[c] + ends[c]) / 2)
+
+        if mirna in abundance_dict:
+            abundance_dict[mirna].append(avg_position)
+
+        else:
+            abundance_dict[mirna] = [avg_position]
+
+    # dropping miRNAs having only one match
+    # list() is needed because the dictionary is getting changed during the loop
+    # if not, "dictionary changed size during iteration" error is raised
+    for i in list(abundance_dict):
+        if len(abundance_dict[i]) < 2:
+            abundance_dict.pop(i)
+
+    return abundance_dict
+
+
+def generate_avg_position_column(results_df):
+    """generates column that contains the average value of the MREs' start & end positions
+
+    Args:
+        results_df (pd.DataFrame): output of find_matches()
+
+    Returns:
+        pd.DataFrame: result dataframe with an additional column
+    """
+    results_df["avg_position"] = (
+        ((results_df.start + results_df.end) / 2)).astype(int)
+
+    return results_df
+
+
+def generate_3utr_abundance_column(results_df):
+    """generates column that checks for MREs of the same miRNA in close proximity (13<dist<35)
+
+    Args:
+        results_df (pd.DataFrame): output of find_matches()
+
+    Returns:
+        pd.DataFrame: result dataframe with an additional column
+    """
+
+    # creating abundance dict
+    abundance_dict = create_abundance_dict(results_df)
+
+    # creating results matrix
+    distances = []
+    for mirna in abundance_dict:
+
+        # pythonic
+        tmp = abundance_dict[mirna]
+
+        dist_combinations = [abs(a - b)
+                             for (a, b) in combinations(tmp, 2)]
+        distances.append(dist_combinations)
+
+    # populating true_dict that contains miRNA names that fit the criteria as keys and their distances as values
+    true_dict = {}
+    for line in distances:
+        for i in line:
+            if 21 <= i <= 43:
+                # 3' UTR abundance checks for MREs that are close to each other (when distance is between 13 and 35 nt)
+                # given that we averaged MRE start & end positions and average length of MREs are 4, +8 is added to both
+                # 13 and 35.
+                x = distances.index(line)
+                y = line.index(i)
+                mirna_name = list(abundance_dict)[x]
+                true_dict[mirna_name] = distances[x][y]
+
+    # finding MRE positions having that specific distance from each other
+    results = []
+    for name in true_dict:
+
+        # pythonic
+        true_distance = true_dict.get(name)
+        all_distances = abundance_dict.get(name)
+
+        results.extend(
+            [name, [v1, v2]]
+            for v1, v2 in pairwise(all_distances)
+            if abs(v2 - v1) == true_distance
+        )
+
+    # generating zeros column
+    results_df["3utr_abundance"] = 0
+
+    # finding which columns to write "1"
+    # ones = []
+    for i in results:
+        for j in range(len(results[1])):
+
+            # pythonic
+            df_filter = (results_df["name"] == i[0]) & (
+                results_df["avg_position"] == i[1][j])
+
+            matching_row_index = results_df.loc[df_filter].index.values.astype(int)[
+                0]
+            results_df.at[matching_row_index, "3utr_abundance"] = 1
+            # ones.append(matching_row_index)
+
+    # # writing "1" to the corresponding columns
+    # for i in ones:
+    #     results_df.at[i, "3utr_abundance"] = 1
     return results_df
