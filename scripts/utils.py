@@ -1,7 +1,6 @@
 from collections import defaultdict
 from itertools import pairwise, combinations
 
-
 from Bio import SeqIO
 import pandas as pd
 
@@ -402,13 +401,16 @@ def create_comparison_set(df):
 ########################################################################################################################
 # TargetScan style printing
 
-def pretty_print(df):
+def pretty_print(df, summary=True):
     """prints a dataframe in monospaced format
     """
-    return df.style.set_properties(**{'text-align': 'left', 'white-space': 'pre-wrap'}).set_table_styles([dict(selector="", props=[("font-size", "12pt"), ("font-family", 'Courier')])])
+    if summary:
+        return df.head().style.set_properties(**{'text-align': 'left', 'white-space': 'pre-wrap'}).set_table_styles([dict(selector="", props=[("font-size", "12pt"), ("font-family", 'Courier')])])
+    else:
+        return df.style.set_properties(**{'text-align': 'left', 'white-space': 'pre-wrap'}).set_table_styles([dict(selector="", props=[("font-size", "12pt"), ("font-family", 'Courier')])])
 
 
-def print_results(df, sequence):
+def print_results(results_df, sequence, summary=True):
     """prints match results in TargetScan style
 
     Args:
@@ -418,12 +420,9 @@ def print_results(df, sequence):
     Returns:
         dataframe: df containing multiline strings in TargetScan style
     """
-    # pythonic
-    names = df["name"].tolist()
-    match_types = df["match_type"].tolist()
-    starts = df["start"].tolist()
-    ends = df["end"].tolist()
-    mirna_sequences = df["mirna_sequence"].tolist()
+
+    names, match_types, mirna_sequences, starts, ends = unpack_results_df(
+        results_df)
 
     result_strings = []
 
@@ -443,18 +442,18 @@ def print_results(df, sequence):
             (" ") + complement(mirna_sequences[i]) + " 5' " + names[i]
 
         # creating middle string
-        middle_string = ""
+        match_string = ""
 
         c = -1
         for nucleotide in reversed(mirna_sequence):
             if match_types[i] in ["7mer-m8", "6mer"]:
-                middle_string += "|" if nucleotide == sequence_slice[c+1] else " "
+                match_string += "|" if nucleotide == sequence_slice[c+1] else " "
             else:
-                middle_string += "|" if nucleotide == sequence_slice[c] else " "
+                match_string += "|" if nucleotide == sequence_slice[c] else " "
             c -= 1
 
         # +3 in whitespace_length corresponds to the "5' " part of the sequence strings
-        middle_string = (whitespace_length+3)*(" ") + middle_string[::-1]
+        middle_string = (whitespace_length+3)*(" ") + match_string[::-1]
         final_string = f"{dna_string}\n{middle_string}\n{mirna_string}"
         result_strings.append(final_string)
 
@@ -462,7 +461,7 @@ def print_results(df, sequence):
         df = pd.DataFrame(list(zip(result_strings, match_types)),
                           columns=["results", "match_types"])
 
-    return pretty_print(df)
+    return pretty_print(results_df, summary)
 
 
 ########################################################################################################################
@@ -582,7 +581,7 @@ def generate_avg_position_column(results_df):
     return results_df
 
 
-def generate_3utr_abundance_column(results_df):
+def generate_close_proximity_column(results_df):
     """generates column that checks for MREs of the same miRNA in close proximity (13<dist<35)
 
     Args:
@@ -634,7 +633,7 @@ def generate_3utr_abundance_column(results_df):
         )
 
     # generating zeros column
-    results_df["3utr_abundance"] = 0
+    results_df["close_proximity"] = 0
 
     # finding which columns to write "1"
     # ones = []
@@ -647,10 +646,44 @@ def generate_3utr_abundance_column(results_df):
 
             matching_row_index = results_df.loc[df_filter].index.values.astype(int)[
                 0]
-            results_df.at[matching_row_index, "3utr_abundance"] = 1
+            results_df.at[matching_row_index, "close_proximity"] = 1
             # ones.append(matching_row_index)
 
     # # writing "1" to the corresponding columns
     # for i in ones:
     #     results_df.at[i, "3utr_abundance"] = 1
+    return results_df
+
+
+def generate_total_no_of_pairs_column(results_df, sequence):
+
+    names, match_types, mirna_sequences, starts, ends = unpack_results_df(
+        results_df)
+
+    results = []
+
+    for i, _ in enumerate(names):
+
+        dna_start = (starts[i] - 24) if starts[i] > 25 else 0
+        dna_end = ends[i]
+        sequence_slice = sequence[dna_start:dna_end]
+        mirna_sequence = mirna_sequences[i]
+
+        no_of_matches = 0
+
+        c = -1
+        for nucleotide in reversed(mirna_sequence):
+            if (
+                match_types[i] in ["7mer-m8", "6mer"]
+                and nucleotide == sequence_slice[c + 1]
+                or match_types[i] not in ["7mer-m8", "6mer"]
+                and nucleotide == sequence_slice[c]
+            ):
+                no_of_matches += 1
+            c -= 1
+
+        results.append(no_of_matches)
+
+    results_df["total_no_of_pairs"] = results
+
     return results_df
