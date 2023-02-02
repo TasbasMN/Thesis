@@ -494,14 +494,18 @@ def generate_3utr_length_column(sequence, results_df):
     return results_df
 
 
-def generate_3_supplementary_pairing_column(sequence, results_df):
-    """
-        generates 3' supplementary pairing column
+def generate_3_supplementary_pairing_column(sequence, results_df, extended=False):
+    """generates 3' supplementary pairing column
 
     Args:
-        sequence (str): sequence
-        results_df (pd.DataFrame): results dataframe
+        sequence (string): DNA sequence under analysis
+        results_df (pd.DataFrame): results of find_matches() function
+        extended (bool, optional): if extended, 3' supplementary pairing is looked at positions 12-17. If not, positions 13-16 are checked. Defaults to False.
+
+    Returns:
+        pd.DataFrame: result dataframe with an extra column
     """
+
     names, match_types, mirna_sequences, starts, ends = unpack_results_df(
         results_df)
 
@@ -509,22 +513,34 @@ def generate_3_supplementary_pairing_column(sequence, results_df):
 
     # main loop
     for i in range(len(names)):
+        if extended:
 
-        supplementary_start = (
-            starts[i] - 10) if match_types[i] in ["8mer", "7mer-m8"] else (starts[i] - 11)
-        supplementary_end = starts[i] - \
-            6 if match_types[i] in ["8mer", "7mer-m8"] else (starts[i] - 7)
+            supplementary_start = (
+                starts[i] - 11) if match_types[i] in ["8mer", "7mer-m8"] else (starts[i] - 12)
+            supplementary_end = starts[i] - 5 if match_types[i] in [
+                "8mer", "7mer-m8"] else (starts[i] - 6)
 
-        supplementary_dna_sequence = (
-            sequence[supplementary_start:supplementary_end])
-        supplementary_mirna_sequence = mirna_sequences[i][-16:-12]
+            supplementary_mirna_sequence = mirna_sequences[i][-17:-11]
 
-        if supplementary_dna_sequence == supplementary_mirna_sequence:
+        else:
+            supplementary_start = (
+                starts[i] - 10) if match_types[i] in ["8mer", "7mer-m8"] else (starts[i] - 11)
+            supplementary_end = starts[i] - 6 if match_types[i] in [
+                "8mer", "7mer-m8"] else (starts[i] - 7)
+
+            supplementary_mirna_sequence = mirna_sequences[i][-16:-12]
+
+        if (sequence[supplementary_start:supplementary_end] == supplementary_mirna_sequence):
             results.append(1)
         else:
             results.append(0)
 
-    results_df["3_supplementary_pairing"] = results
+        # supplementary_dna_sequence = (sequence[supplementary_start:supplementary_end])
+
+    if extended:
+        results_df["extended_supplementary_pairing"] = results
+    else:
+        results_df["3_supplementary_pairing"] = results
 
     return results_df
 
