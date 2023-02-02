@@ -458,10 +458,10 @@ def print_results(results_df, sequence, summary=True):
         result_strings.append(final_string)
 
         # df that contains final results
-        df = pd.DataFrame(list(zip(result_strings, match_types)),
-                          columns=["results", "match_types"])
+        stylized_df = pd.DataFrame(list(zip(result_strings, match_types)),
+                                   columns=["results", "match_types"])
 
-    return pretty_print(results_df, summary)
+    return pretty_print(stylized_df, summary)
 
 
 ########################################################################################################################
@@ -655,7 +655,7 @@ def generate_close_proximity_column(results_df):
     return results_df
 
 
-def generate_total_no_of_pairs_column(results_df, sequence):
+def generate_total_no_of_pairs_column(sequence, results_df):
 
     names, match_types, mirna_sequences, starts, ends = unpack_results_df(
         results_df)
@@ -685,5 +685,24 @@ def generate_total_no_of_pairs_column(results_df, sequence):
         results.append(no_of_matches)
 
     results_df["total_no_of_pairs"] = results
+
+    return results_df
+
+
+def generate_position_in_utr_column(sequence, results_df):
+
+    utr_length = len(sequence)
+
+    names = results_df["name"].tolist()
+    avg_positions = results_df["avg_position"].tolist()
+
+    results = []
+
+    for i, _ in enumerate(names):
+        # round to 3 decimal places
+        position_in_utr = round(avg_positions[i] / utr_length, 3)
+        results.append(position_in_utr)
+
+    results_df["position_in_utr"] = results
 
     return results_df

@@ -16,7 +16,7 @@ These features are used to minimize false positives (increase specificity)
 - evolutionary conservation of seed site
 - [Site Accessibility](../Feature%20Columns/Site%20Accessibility.md)
 - [Flanking Dinucleotides](../Feature%20Columns/Flanking%20Dinucleotides.md)
-- [3′-UTR Target-site Abundance](../Feature%20Columns/3′-UTR%20Target-site%20Abundance.md)
+- [MREs in close proximity](../Feature%20Columns/MREs%20in%20close%20proximity.md)
 
 ## Categories
 

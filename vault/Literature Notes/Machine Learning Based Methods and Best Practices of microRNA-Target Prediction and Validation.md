@@ -24,7 +24,7 @@ Prediction tools are classified into six categories (Chu et al. 2020) based on s
 - [Local AU Content](../Feature%20Columns/Local%20AU%20Content.md)
 - [Site Accessibility](../Feature%20Columns/Site%20Accessibility.md)
 - [Folding Energy](../Feature%20Columns/Folding%20Energy.md)
-- [3′-UTR Target-site Abundance](../Feature%20Columns/3′-UTR%20Target-site%20Abundance.md)
+- [MREs in close proximity](../Feature%20Columns/MREs%20in%20close%20proximity.md)
 - [Conservation](../Feature%20Columns/Conservation.md)
 
 ## Seed Matching

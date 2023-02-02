@@ -1,4 +1,4 @@
-# 3′-UTR Target-site Abundance
+# MREs in Close Proximity
 
 This feature checks if there are any cooperation between RISC complexes bound to neighboring MREs
 
