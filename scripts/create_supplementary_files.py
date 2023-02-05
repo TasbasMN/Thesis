@@ -76,6 +76,24 @@ def create_mirbase_db():
     return pd.DataFrame(list(zip(names, sequences)), columns=["name", "sequence"])
 
 
+def read_ta_sps_data(file_path):
+    df = pd.read_excel(file_path)
+
+    df = df.drop(["TA percentile rank", "Mean SPS percentile rank",
+                 "Mean SPS (kcal/mol)", "miRNA"], axis=1)
+
+    renaming_dict = {"Seed + nt 8": "seed",
+                     "7mer-m8 site": "mrna_seed",
+                     "TA (log10)": "ta",
+                     "6mer SPS (kcal/mol)": "6mer_sps",
+                     "7mer-m8 SPS (kcal/mol)": "7mer_sps"
+                     }
+
+    df.rename(columns=renaming_dict, inplace=True)
+
+    return df
+
+
 targetscan_df = create_targetscan_db()
 targetscan_df.to_csv("data/supplementary_files/targetscan.tsv",
                      sep="\t", index=False)
@@ -83,3 +101,7 @@ targetscan_df.to_csv("data/supplementary_files/targetscan.tsv",
 mirbase_df = create_mirbase_db()
 mirbase_df.to_csv("data/supplementary_files/mirbase.tsv",
                   sep="\t", index=False)
+
+ta_sps_df = read_ta_sps_data(
+    "data/raw_supplementary_files/bartel_2011_ta_sps_data.xlsx")
+ta_sps_df.to_csv("data/supplementary_files/ta_sps.tsv", sep="\t", index=False)

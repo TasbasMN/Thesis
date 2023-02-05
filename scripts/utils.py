@@ -39,6 +39,7 @@ def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mer
     start_coords = []
     end_coords = []
     seed_matches = []
+    seeds_without_anchor_a = []
     match_types = []
     mirna_sequences = []
 
@@ -86,6 +87,7 @@ def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mer
 
                 names.append(record[0])
                 mirna_sequences.append(mirna_sequence)
+                seeds_without_anchor_a.append(chunk[:7])
 
     # step 5: creating result dataframe
     df = pd.DataFrame(
@@ -94,6 +96,7 @@ def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mer
                 names,
                 start_coords,
                 end_coords,
+                seeds_without_anchor_a,
                 seed_matches,
                 match_types,
                 mirna_sequences
@@ -103,7 +106,8 @@ def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mer
             "name",
             "start",
             "end",
-            "seed match",
+            "seed_without_anchor_a",
+            "seed_match",
             "match_type",
             "mirna_sequence"
         ],
@@ -817,5 +821,54 @@ def generate_local_au_content_column(sequence, results_df):
 
     results_df["5end_au_content_score"] = final_scores_5end
     results_df["3end_au_content_score"] = final_scores_3end
+
+    return results_df
+
+
+def generate_ta_column(results_df, ta_sps_df):
+
+    bartel_seeds = ta_sps_df["mrna_seed"].values.tolist()
+    bartel_ta = ta_sps_df["ta"].values.tolist()
+
+    seed_to_ta_dict = {bartel_seeds[i]: bartel_ta[i]
+                       for i in range(len(bartel_seeds))}
+
+    results_df["ta"] = results_df["seed_without_anchor_a"].map(seed_to_ta_dict)
+
+    return results_df
+
+
+def generate_sps_column(results_df, ta_sps_df):
+
+    # unpacking results df
+    names = results_df["name"].values.tolist()
+    seed_without_anchor_as = results_df["seed_without_anchor_a"].values.tolist(
+    )
+    match_types = results_df["match_type"].values.tolist()
+
+    # unpacking bartel df
+    bartel_seeds = ta_sps_df["mrna_seed"].values.tolist()
+    bartel_6mer_sps = ta_sps_df["6mer_sps"].values.tolist()
+    bartel_7mer_sps = ta_sps_df["7mer_sps"].values.tolist()
+
+    seeds_to_6mer_sps_dict = {
+        bartel_seeds[i]: bartel_6mer_sps[i] for i in range(len(bartel_seeds))}
+    seeds_to_7mer_sps_dict = {
+        bartel_seeds[i]: bartel_7mer_sps[i] for i in range(len(bartel_seeds))}
+
+    # initiating empty new column
+    #results_df["ta_6mer"] = [0 for _ in range(len(results_df))]
+
+    results = [0 for _ in range(len(results_df))]
+
+    for i, _ in enumerate(names):
+
+        if match_types[i] in ["6mer", "7mer-A1"] and seed_without_anchor_as[i] in seeds_to_6mer_sps_dict:
+            results[i] = bartel_6mer_sps[i]
+
+        elif match_types[i] in ["7mer-m8", "8mer"] and seed_without_anchor_as[i] in seeds_to_7mer_sps_dict:
+            results[i] = bartel_7mer_sps[i]
+
+    results_df["sps"] = results
 
     return results_df
