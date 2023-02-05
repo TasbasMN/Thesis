@@ -187,6 +187,20 @@ def dna_to_mrna(string):
     return "".join("U" if nuc == "T" else nuc for nuc in string)
 
 
+def get_dna_seq_from_coordinates(sequence, start, end):
+    """
+    Get DNA sequence from coordinates, with indices starting from 1 (biological) instead of 0
+
+    Args:
+        sequence (str): DNA sequence
+        start (int): start position
+        end (int): end position
+
+    Returns:
+        str: DNA sequence
+    """
+    return sequence[start-1:end-1]
+
 ########################################################################################################################
 # db comparison tools
 
@@ -720,5 +734,88 @@ def generate_position_in_utr_column(sequence, results_df):
         results.append(position_in_utr)
 
     results_df["position_in_utr"] = results
+
+    return results_df
+
+
+def generate_flanking_scores_column(sequence, results_df):
+    # sourcery skip: sum-comprehension
+
+    names = results_df["name"].tolist()
+    starts = results_df["start"].tolist()
+    ends = results_df["end"].tolist()
+
+    scores_5end = []
+    scores_3end = []
+    score_dict = {"A": 1, "C": 0, "G": -1, "T": 1, "U": 1}
+
+    # getting flanking dinuc. sequences
+    for i, _ in enumerate(names):
+        result_5end = get_dna_seq_from_coordinates(
+            sequence, starts[i]-3, starts[i]-1)
+        result_3end = get_dna_seq_from_coordinates(
+            sequence, ends[i]+1, ends[i]+3)
+
+        score_5end = 0
+        for j in result_5end:
+            if j in score_dict:
+                score_5end += score_dict[j]
+        scores_5end.append(score_5end)
+
+        score_3end = 0
+        for k in result_3end:
+            if k in score_dict:
+                score_3end += score_dict[k]
+        scores_3end.append(score_3end)
+
+    results_df["5end_flank_score"] = scores_5end
+    results_df["3end_flank_score"] = scores_3end
+
+    return results_df
+
+
+def generate_local_au_content_column(sequence, results_df):
+
+    names = results_df["name"].tolist()
+    starts = results_df["start"].tolist()
+    ends = results_df["end"].tolist()
+
+    # generating weights that correspond to each position in the 30nt window
+    weight_dict_5end = {i: (1/(32-i)) for i in range(1, 31)}
+    weight_dict_3end = {i: (1/(i+1)) for i in range(1, 31)}
+
+    final_scores_5end = []
+    final_scores_3end = []
+
+    # for each miRNA;
+    for i, _ in enumerate(names):
+
+        start_5end = (starts[i]-30) if starts[i] > 30 else 1
+        end_5end = starts[i]-1
+
+        start_3end = ends[i]+1
+        end_3end = ends[i]+31
+
+        # getting flanking 30nt sequences
+        window_5end = get_dna_seq_from_coordinates(
+            sequence, start_5end, end_5end)
+        window_3end = get_dna_seq_from_coordinates(
+            sequence, start_3end, end_3end)
+
+        score_5end = sum(
+            weight_dict_5end[j + 1]
+            for j, nucleotide in enumerate(window_5end)
+            if nucleotide in ["A", "U"]
+        )
+        score_3end = sum(
+            weight_dict_3end[k + 1]
+            for k, nucleotide in enumerate(window_3end)
+            if nucleotide in ["A", "U"]
+        )
+        final_scores_5end.append(score_5end)
+        final_scores_3end.append(score_3end)
+
+    results_df["5end_au_content_score"] = final_scores_5end
+    results_df["3end_au_content_score"] = final_scores_3end
 
     return results_df
