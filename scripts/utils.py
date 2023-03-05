@@ -4,8 +4,11 @@ from itertools import pairwise, combinations
 from Bio import SeqIO
 import pandas as pd
 
-import matplotlib.pyplot as plt
-import matplotlib_venn as venn
+import subprocess
+import uuid
+import os
+import contextlib
+import math
 
 
 def find_matches(sequence, mirna_df, ignore_first_15_nucleotides=True, find_6mers=False, comparison_columns=False):
@@ -204,216 +207,6 @@ def get_dna_seq_from_coordinates(sequence, start, end):
         str: DNA sequence
     """
     return sequence[start-1:end-1]
-
-########################################################################################################################
-# db comparison tools
-
-
-def compare_mirna_dataframes(mirbase, targetscan):
-    """function that compares 2 dataframes
-    """
-
-    mirbase_copy = mirbase.copy()
-    targetscan_copy = targetscan.copy()
-
-    # generating comparison columns
-    mirbase_copy["comparison"] = [
-        f"{a}_{b}" for a, b in zip(mirbase_copy.name, mirbase_copy.sequence)
-    ]
-    targetscan_copy["comparison"] = [
-        f"{a}_{b}" for a, b in zip(targetscan_copy.name, targetscan_copy.sequence)
-    ]
-
-    mirbase_set = set(mirbase_copy["comparison"].values.tolist())
-    targetscan_set = set(targetscan_copy["comparison"].values.tolist())
-
-    total0 = len(mirbase_set.union(targetscan_set))
-    venn.venn2(
-        [mirbase_set, targetscan_set],
-        set_labels=("miRBase", "TargetScan"),
-        subset_label_formatter=lambda x: str(
-            x) + "\n(" + f"{(x/total0):1.0%}" + ")",
-    )
-    plt.title("Fig 0: Differences between miRNA databases")
-    plt.show()
-
-
-def create_venn_diagrams(mirbase_set, targetscan_set, canonical_set):
-    """function that creates venn diagrams
-    """
-
-    total1 = len(mirbase_set.union(targetscan_set))
-    venn.venn2(
-        [mirbase_set, targetscan_set],
-        set_labels=("miRBase miRNAs", "TargetScan miRNAs"),
-        subset_label_formatter=lambda x: str(
-            x) + "\n(" + f"{(x/total1):1.0%}" + ")",
-    )
-    plt.title(
-        "Fig 1: Results using miRBase miRNAs vs. Results using TargetScan miRNAs")
-    plt.show()
-
-    total2 = len(mirbase_set.union(canonical_set))
-    venn.venn2(
-        [mirbase_set, canonical_set],
-        set_labels=("miRBase miRNAs", "TargetScan Canonical Results"),
-        subset_label_formatter=lambda x: str(
-            x) + "\n(" + f"{(x/total2):1.0%}" + ")",
-    )
-    plt.title("Fig 2: Results using miRBase miRNAs vs. TargetScan Canonical Results")
-    plt.show()
-
-    total3 = len(targetscan_set.union(canonical_set))
-    venn.venn2(
-        [targetscan_set, canonical_set],
-        set_labels=("TargetScan miRNAs", "TargetScan Canonical Results"),
-        subset_label_formatter=lambda x: str(
-            x) + "\n(" + f"{(x/total3):1.0%}" + ")",
-    )
-    plt.title(
-        "Fig 3: Results using TargetScan miRNAs vs. TargetScan Canonical Results")
-    plt.show()
-
-    triple = [mirbase_set, targetscan_set, canonical_set]
-    venn.venn3(
-        triple,
-        set_labels=(
-            "miRBase miRNAs",
-            "TargetScan miRNAs",
-            "TargetScan Canonical Results",
-        ),
-    )
-    plt.title("Fig 4: Comparison of all results")
-    plt.show()
-
-
-def plot_venn_diagram(s1, s2, s1_name="set1", s2_name="set2"):
-    """function that plots a venn diagram
-    """
-
-    total_number = len(s1.union(s2))
-    venn.venn2(
-        [s1, s2],
-        set_labels=(s1_name, s2_name),
-        subset_label_formatter=lambda x: str(x)
-        + "\n("
-        + f"{(x/total_number):1.0%}"
-        + ")",
-    )
-    # plt.title("Fig 3: Results using TargetScan miRNAs vs. TargetScan Canonical Results")
-    plt.show()
-
-
-def parse_targetscan_result_file(f):
-    """function that parses a targetscan result file
-    """
-
-    df = pd.read_csv(f, sep="\t")
-
-    df.columns = [
-        "name",
-        "coordinates",
-        "match_type",
-        "c++_score",
-        "c++_score_percentile",
-        "weighted_c++_score",
-        "conserved_branch_length",
-        "pct",
-        "relative_kd",
-    ]
-
-    df.drop(df.index[df["name"] == "Conserved sites"], inplace=True)
-    df.drop(df.index[df["name"] == "Poorly conserved sites"], inplace=True)
-
-    return df
-
-
-def analyze_differences_between_sets(s1, s2):
-    """function that analyzes the differences between two sets
-    """
-
-    diff = s1.difference(s2)
-
-    s1_names = []
-    s1_start_coords = []
-    s1_end_coords = []
-
-    # unpacks previously concatenated mirna names and predicted positions
-    for i in diff:
-        temp = i.split("_")
-        s1_names.append(temp[0])
-
-        temp2 = temp[1].split("-")
-        s1_start_coords.append(temp2[0])
-        s1_end_coords.append(temp2[1])
-
-    s2_start_coords = []
-    s2_end_coords = []
-
-    for s1_name in s1_names:
-
-        # pythonic
-        start = targetscan_results[targetscan_results["name"]
-                                   == s1_name].start.values
-        end = targetscan_results[targetscan_results["name"]
-                                 == s1_name].end.values
-
-        s2_start_coords.append(start)
-        s2_end_coords.append(end)
-
-    # result df
-    column_names = ["name", "canonical_start",
-                    "canonical_end", "our_start", "our_end"]
-    df = pd.DataFrame(
-        list(
-            zip(
-                s1_names, s1_start_coords, s1_end_coords, s2_start_coords, s2_end_coords
-            )
-        ),
-        columns=column_names,
-    )
-
-    # exploding results
-    df = df.explode("our_start")
-    df = df.explode("our_end")
-
-    # post explode
-    df.fillna(0, inplace=True)
-
-    # changing values into int
-    df["canonical_start"] = df["canonical_start"].astype(int)
-    df["canonical_end"] = df["canonical_end"].astype(int)
-    df["our_start"] = df["our_start"].astype(int)
-    df["our_end"] = df["our_end"].astype(int)
-
-    # explode causes unwanted coordinate pairs, this part removes them
-    # flags rows to be dropped with True
-    df["flag"] = abs(df["our_end"] - df["our_start"]) > 10
-
-    # drops True & flag column
-    df = df[df["flag"] == False]
-    df = df.drop("flag", axis=1)
-
-    df["difference_between_starts"] = df["canonical_start"] - df["our_start"]
-    df["difference_between_ends"] = df["canonical_end"] - df["our_end"]
-
-    # additional flags
-    df["missed"] = df["our_end"] == 0
-
-    return df
-
-
-def create_comparison_set(df):
-    """function that creates a comparison set
-    """
-
-    names = df["name"].values.tolist()
-    coords = df["coordinates"].values.tolist()
-
-    # zipping names and coordinates with underscore
-    zipped_strings = [f"{m}_{n}" for m, n in zip(names, coords)]
-
-    return set(zipped_strings)
 
 
 ########################################################################################################################
@@ -727,8 +520,8 @@ def generate_position_in_utr_column(sequence, results_df):
 
     utr_length = len(sequence)
 
-    names = results_df["name"].tolist()
-    avg_positions = results_df["avg_position"].tolist()
+    names = results_df["name"].values.tolist()
+    avg_positions = results_df["avg_position"].values.tolist()
 
     results = []
 
@@ -742,47 +535,73 @@ def generate_position_in_utr_column(sequence, results_df):
     return results_df
 
 
-def generate_flanking_scores_column(sequence, results_df):
-    # sourcery skip: sum-comprehension
+def generate_flanking_dinucleotides_columns(sequence, results_df):
 
-    names = results_df["name"].tolist()
-    starts = results_df["start"].tolist()
-    ends = results_df["end"].tolist()
+    names = results_df["name"].values.tolist()
+    starts = results_df["start"].values.tolist()
+    ends = results_df["end"].values.tolist()
 
-    scores_5end = []
-    scores_3end = []
-    score_dict = {"A": 1, "C": 0, "G": -1, "T": 1, "U": 1}
+    results_a5, results_u5, results_g5, results_c5, results_a3, results_u3, results_g3, results_c3 = ([
+    ] for _ in range(8))
 
-    # getting flanking dinuc. sequences
     for i, _ in enumerate(names):
-        result_5end = get_dna_seq_from_coordinates(
+
+        a5 = u5 = g5 = c5 = a3 = u3 = g3 = c3 = 0
+
+        nucleotides_5end = get_dna_seq_from_coordinates(
             sequence, starts[i]-3, starts[i]-1)
-        result_3end = get_dna_seq_from_coordinates(
+
+        nucleotides_3end = get_dna_seq_from_coordinates(
             sequence, ends[i]+1, ends[i]+3)
 
-        score_5end = 0
-        for j in result_5end:
-            if j in score_dict:
-                score_5end += score_dict[j]
-        scores_5end.append(score_5end)
+        for j in nucleotides_5end:
+            if j == "A":
+                a5 += 1
+            elif j == "U":
+                u5 += 1
+            elif j == "G":
+                g5 += 1
+            elif j == "C":
+                c5 += 1
 
-        score_3end = 0
-        for k in result_3end:
-            if k in score_dict:
-                score_3end += score_dict[k]
-        scores_3end.append(score_3end)
+        for k in nucleotides_3end:
+            if k == "A":
+                a3 += 1
+            elif k == "U":
+                u3 += 1
+            elif k == "G":
+                g3 += 1
+            elif k == "C":
+                c3 += 1
 
-    results_df["5end_flank_score"] = scores_5end
-    results_df["3end_flank_score"] = scores_3end
+        results_a5.append(a5)
+        results_u5.append(u5)
+        results_g5.append(g5)
+        results_c5.append(c5)
+
+        results_a3.append(a3)
+        results_u3.append(u3)
+        results_g3.append(g3)
+        results_c3.append(c3)
+
+    results_df["adenine_5end"] = results_a5
+    results_df["cytosine_5end"] = results_c5
+    results_df["guanine_5end"] = results_g5
+    results_df["uracil_5end"] = results_u5
+
+    results_df["adenine_3end"] = results_a3
+    results_df["cytosine_3end"] = results_c3
+    results_df["guanine_3end"] = results_g3
+    results_df["uracil_3end"] = results_u3
 
     return results_df
 
 
 def generate_local_au_content_column(sequence, results_df):
 
-    names = results_df["name"].tolist()
-    starts = results_df["start"].tolist()
-    ends = results_df["end"].tolist()
+    names = results_df["name"].values.tolist()
+    starts = results_df["start"].values.tolist()
+    ends = results_df["end"].values.tolist()
 
     # generating weights that correspond to each position in the 30nt window
     weight_dict_5end = {i: (1/(32-i)) for i in range(1, 31)}
@@ -857,7 +676,7 @@ def generate_sps_column(results_df, ta_sps_df):
         bartel_seeds[i]: bartel_7mer_sps[i] for i in range(len(bartel_seeds))}
 
     # initiating empty new column
-    #results_df["ta_6mer"] = [0 for _ in range(len(results_df))]
+    # results_df["ta_6mer"] = [0 for _ in range(len(results_df))]
 
     results = [0 for _ in range(len(results_df))]
 
@@ -870,5 +689,110 @@ def generate_sps_column(results_df, ta_sps_df):
             results[i] = bartel_7mer_sps[i]
 
     results_df["sps"] = results
+
+    return results_df
+
+
+def one_hot_encode_match_types(results_df):
+
+    match_types = results_df["match_type"].values.tolist()
+
+    m8 = []
+    seed_match = [1 for _ in range(len(match_types))]
+    a1 = []
+
+    for i, _ in enumerate(match_types):
+        if match_types[i] == "8mer":
+            m8.append(1)
+            a1.append(1)
+        elif match_types[i] == "7mer-A1":
+            m8.append(0)
+            a1.append(1)
+        elif match_types[i] == "7mer-m8":
+            m8.append(1)
+            a1.append(0)
+        else:
+            m8.append(0)
+            a1.append(0)
+
+    results_df["m8"] = m8
+    results_df["seedmatch"] = seed_match
+    results_df["a1"] = a1
+
+    return results_df
+
+
+def get_pair_probabilities_of_sequence(sequence, delete_temp_files=True, window_size=80, bp_range=40, length_of_region=16, log10_output=True):
+
+    # define RNAplfold location
+    RNAplfold = "/usr/local/bin/RNAplfold"
+
+    # getting unique session ID and adding it to sequence to uniquely rename each output file
+    unique_id = f'fn_{str(uuid.uuid1())}'
+
+    seq_with_unique_id = f'>{(unique_id)}' + '\n' + sequence
+    seq_with_unique_id = seq_with_unique_id.encode()
+
+    # running RNAplfold
+    plfold_subprocess = subprocess.Popen([RNAplfold, "-W", f"{window_size}", "-L", f"{bp_range}", "-u", f"{length_of_region}", "-o"],
+                                         stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    output, error = plfold_subprocess.communicate(input=seq_with_unique_id)
+    plfold_subprocess.wait()
+
+    # parsing output
+    with open(f"{unique_id}_lunp", 'r') as f:
+        lines = f.readlines()
+
+    # removing whitespaces
+    lines = [item.strip() for item in lines]
+
+    # dropping empty lines
+    lines = [line for line in lines if len(line) != 0]
+
+    # dropping first 2 lines
+    lines = lines[2:]
+
+    # splitting lines by tabs
+    lines = [item.split('\t') for item in lines]
+
+    # getting last element of each line
+    unpaired_probabilities = [line[-1] for line in lines]
+
+    # deleting temp files
+    if delete_temp_files:
+        with contextlib.suppress(Exception):
+            os.remove(f"{unique_id}_basepairs")
+            os.remove(f"{unique_id}_lunp")
+
+    if not log10_output:
+        return unpaired_probabilities
+
+    log10_results = []
+    for i in unpaired_probabilities:
+        if i == "NA":
+            log10_results.append(0)
+        else:
+            log10_results.append(round(math.log10(float(i)), 3))
+
+    return log10_results
+
+
+def get_accessibility_column(sequence, results_df, log10_results=True):
+
+    ends = results_df["end"].values.tolist()
+
+    log10_results = get_pair_probabilities_of_sequence(
+        sequence, length_of_region=16, log10_output=log10_results)
+
+    results = []
+    # for each miRNA;
+    for i, _ in enumerate(ends):
+
+        end = ends[i]
+
+        results.append(log10_results[end-1])
+
+    results_df["accessibility"] = results
 
     return results_df

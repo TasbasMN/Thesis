@@ -1,4 +1,6 @@
-tenv/**
-data/**
-others/**
+.git/**
+.ipynb_checkpoints/**
 .obsidian/**
+.venv/**
+tenv/**
+ViennaRNA-2.4.17/**
