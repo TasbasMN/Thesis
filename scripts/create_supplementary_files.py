@@ -1,12 +1,13 @@
+import csv
 import pandas as pd
 from Bio import SeqIO
 
 
 def mirna_to_mrna(string):
-    return complement(string[::-1])
+    return rna_complement(string[::-1])
 
 
-def complement(string):
+def rna_complement(string):
 
     result = ""
     for nuc in string:
@@ -94,6 +95,36 @@ def read_ta_sps_data(file_path):
     return df
 
 
+def parse_clash_data(filename="../data/raw_supplementary_files/mmc1.txt"):
+    """
+    Parse the CLASH data into 2 csv's
+    """
+    with open(filename) as f:
+        lines = f.readlines()
+
+    columns = []
+    data = []
+    for line in lines:
+        if line.startswith("#"):
+            line = line[1:]
+            row = line.strip().split("\t")
+
+            columns.append(row)
+
+        else:
+            row = line.strip().split("\t")
+            data.append(row)
+
+    # removes header text
+    columns.pop(0)
+
+    with open("../data/supplementary_files/clash_column_details.tsv", "w") as f:
+        csv.writer(f, delimiter="\t").writerows(columns)
+
+    with open("../data/supplementary_files/clash_data_parsed.tsv", "w") as f:
+        csv.writer(f, delimiter="\t").writerows(data)
+
+
 targetscan_df = create_targetscan_db()
 targetscan_df.to_csv("data/supplementary_files/targetscan.tsv",
                      sep="\t", index=False)
@@ -105,3 +136,5 @@ mirbase_df.to_csv("data/supplementary_files/mirbase.tsv",
 ta_sps_df = read_ta_sps_data(
     "data/raw_supplementary_files/bartel_2011_ta_sps_data.xlsx")
 ta_sps_df.to_csv("data/supplementary_files/ta_sps.tsv", sep="\t", index=False)
+
+parse_clash_data()

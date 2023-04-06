@@ -1,26 +1,92 @@
+# pinned notes
 
-# 2-9 march 2023
-
-- moved new functions into utils.py
-- added calculate_free_energy()
-- removed fasta header addition & removal from calculate_free_energy()
-- added generate_hybridization_energy_column()
+## would be nice if done TODO:
 
 
-## todo
-
-unpack_results_df unpacks more than needed. deprecate.
-- name of complement() function is not great. rename it.
 - küçük harf olan fastalarda script patlar
 - çizgi olan fastalarda script patlar
 - N olan fastalarda script patlar
+- discarded featureleri biz de deneyip sonucu etkilemediğini görsek mi?
+
+- [ ] TargetScan miRNA databasesindeki conservation değerleri yeni bir kolon olarak (mirna_conservation) eklenecek
+- [ ] target_abundance kolonu eklenecek (hedef UTR'da o miRNA'nın kaç tane non-overlapping hedefi var?)
+- [ ] figure out a way to implement target_conservation (TargetScan uses Pct)
 
 
 
-# 23 february - 2 march 2023
 
 
-## done
+
+## weeks
+
+## 30 march - 6 april 2023
+
+- Implement different canonical sites from CLASH
+- blast.ipynb
+- tried DP alignment algo
+- CLASH_V_matches
+- deprecated unpack_results_df()
+
+
+## 21-30 march 2023
+
+todo:
+
+- create negative dataset
+
+done:
+
+- opened issue on mirbind github
+- modified & ran find matches on clash
+
+future:
+
+- generate negative set
+- find noncanonical matches (don't use dict matching)
+
+
+## 9-21 march 2023
+
+done:
+
+- get_pair_probabilities_of_sequence() now appends "NaN" instead of 0
+- added parse_clash_data() into create_supplementary_files.py
+- added preprocess_clash_data() to utils.py
+- added get_ensembl60_data() to utils.py
+- added tools.py
+- examined pyensembl use cases in pyensembl tutorial.ipynb 
+- moved script to main.ipynb
+- moved some functions to tools.py
+- removed irrelevant functions from utils.py
+
+## 2-9 march 2023
+
+### done:
+
+- moved new functions into utils.py
+- tidied up main script
+
+- added invoke_rnaduplex()
+- added invoke_rnacofold()
+
+- added generate_rnacofold_energy_column()
+- added generate_rnaduplex_energy_column()
+
+- renamed complement() into rna_complement()
+
+- found & implemented a new feature, generate_stable_duplex_column()
+
+### questions:
+
+- 3 basamağa yuvarladım log10'u. Az mı? (accessibility functionında)
+- append 0 mantıklı mı yoksa append math.nan mı gerekir (accessibility functionında)
+
+
+
+
+## 23 february - 2 march 2023
+
+### done
 
 - fixed inconsistencies column selectors
   - all df["column"].tolist() uses changed into df["column"].values.tolist(), as the method is faster
@@ -33,7 +99,7 @@ todo for next days:
 - add rnaduplex wrapper functions for thermodynamical calcs
 - start exploring xgb
 
-# 16-23 february 2023
+## 16-23 february 2023
 
 ### General Stuff
 
