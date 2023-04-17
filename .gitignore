@@ -6,3 +6,5 @@ tenv/**
 ViennaRNA-2.4.17/**
 
 blast_test/**
+
+scripts/__pycache__/**
