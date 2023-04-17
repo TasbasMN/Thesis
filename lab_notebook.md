@@ -8,12 +8,52 @@
 - N olan fastalarda script patlar
 - discarded featureleri biz de deneyip sonucu etkilemediğini görsek mi?
 
-- [ ] TargetScan miRNA databasesindeki conservation değerleri yeni bir kolon olarak (mirna_conservation) eklenecek
-- [ ] target_abundance kolonu eklenecek (hedef UTR'da o miRNA'nın kaç tane non-overlapping hedefi var?)
-- [ ] figure out a way to implement target_conservation (TargetScan uses Pct)
+
+- [x] target_abundance kolonu eklenecek (hedef UTR'da o miRNA'nın kaç tane non-overlapping hedefi var?)
+- [x] figure out a way to implement target_conservation (TargetScan uses Pct)
 
 
 
+13 Nisan
+
+(N ve - mismatch olacak)
+
+
+
+## 6-13 April 2023:
+
+  - started hybrid.ipynb
+  - added align_sequences()
+  - added find_matches()
+  - find_k_consecutive_bps()
+
+
+
+
+
+
+
+# TODO
+
+  truba
+
+opsiyonel:
+
+- https://www.nature.com/articles/nsmb.2230 
+- https://compgen.bio.ub.edu/datasets/454/docs/Parameters.html
+
+
+fonksiyonları birleştirip sonuç df'ini hazırla
+
+negatif dataseti hallet
+
+build xgb
+
+breast cancer vcf'lerini indir, vcfteki adresten sekansı çek
+
+çok sonraki işler:
+- signaturelerle ilişkilendirilmesi
+- sig based miRNA binding
 
 
 
