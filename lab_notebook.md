@@ -12,12 +12,31 @@
 - [x] target_abundance kolonu eklenecek (hedef UTR'da o miRNA'nın kaç tane non-overlapping hedefi var?)
 - [x] figure out a way to implement target_conservation (TargetScan uses Pct)
 
+## Problems:
 
+- ta_sps tsv can't be created because it is an excel file. find a way
 
 13 Nisan
 
 (N ve - mismatch olacak)
 
+
+## 13-20 April 2023:
+
+- wrote main_v2.0.ipynb and all its functions
+
+- moved tools.py into nucleotide_toolkit.py to better represent its contents
+  - added docstrings 
+
+- added features.py that contains feature generating functions
+
+- changed usages of "accession" column into "name" column for uniformity purposes between mb and ts datas
+
+- added driver.py
+- added supplementary.py for creating supplementary tsv files
+- added utils_v2.py, removed unnecessary functions from utils.py
+
+- changed create_supplementary_files.py into create_supplementary_files() in driver.py 
 
 
 ## 6-13 April 2023:
