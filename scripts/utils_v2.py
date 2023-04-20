@@ -1,4 +1,6 @@
-# this module contains helper functions for the v2.0 of find_matches()
+# this module contains helper functions for the v2.0 pipeline
+
+
 
 from scripts.nucleotide_toolkit import *
 
@@ -131,26 +133,12 @@ def find_matches_slice(sequence_slice, targetscan_df, start_pos=0, allow_wobbles
     
     
 def find_matches(sequence, targetscan_df, allow_wobbles=False, minimum_matches=7):
-    """Finds miRNA matches in a given sequence.
 
-    Args:
-        sequence (str): The sequence to search for miRNA matches.
-        targetscan_df (pandas.DataFrame): A DataFrame containing miRNA accession
-            numbers and sequences to search for.
-        allow_wobbles (bool): Whether to allow wobbles in pairing (default False).
-        minimum_matches (int): The minimum number of base pairs required for a match
-            to be considered (default 7).
-
-    Returns:
-        pandas.DataFrame: A DataFrame containing information about miRNA matches found,
-            including accession number, starting position, alignment string, number of
-            base pairs, number of wobbles, and total number of base pairs and wobbles.
-    """
     # Preparing stuff
     names = targetscan_df["name"].tolist()
     
     mirna_sequences = targetscan_df["sequence"].tolist()
-    name_results, starts, alignment_strings, pair_counts, wobble_counts = [], [], [], [], []
+    name_results, starts, sequences, alignment_strings, pair_counts, wobble_counts = [], [], [], [], [], []
 
     # For each miRNA
     for i, mirna_sequence in enumerate(mirna_sequences):
@@ -169,14 +157,16 @@ def find_matches(sequence, targetscan_df, allow_wobbles=False, minimum_matches=7
             # Add the results to the lists
             name_results.append(names[i])
             starts.append(c)
+            sequences.append(mirna_sequence)
             alignment_strings.append(alignment_string)
             pair_counts.append(pair_count)
             wobble_counts.append(wobble_count)
 
-    return pd.DataFrame(
+    df = pd.DataFrame(
         {
-            "names": name_results,
+            "name": name_results,
             "start": starts,
+            "mirna_sequence": sequences,
             "alignment_string": alignment_strings,
             "no_of_base_pairs": pair_counts,
             "no_of_wobbles": wobble_counts,
@@ -185,6 +175,11 @@ def find_matches(sequence, targetscan_df, allow_wobbles=False, minimum_matches=7
             ],
         }
     )
+    
+    # adding seed column
+    df["seed"] = df["mirna_sequence"].str[-8:-1]
+    
+    return df
 
 
 def find_k_consecutive_bps(df, k=8):
@@ -206,3 +201,4 @@ def find_k_consecutive_bps(df, k=8):
     df[kmer_colname] = kmer_mask.astype(int)
 
     return df
+

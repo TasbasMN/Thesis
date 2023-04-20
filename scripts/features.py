@@ -1,5 +1,8 @@
 # this file contains feature column generator functions
 import re
+from itertools import pairwise, combinations
+
+import pandas as pd
 
 
 ######################################################################################################################
@@ -300,6 +303,135 @@ def find_CLASH_V_sites(df, threshold=11):
     df["CLASH_V"] = mask.astype(int)
 
     return df
+
+
+def create_midpoint_dict(df):
+    """creates a dictionary with miRNA names as keys and their average MRE positions as values, only for miRNAs that have >= 2 MREs
+
+    Args:
+        df (pd.DataFrame): results from find_matches()
+
+    Returns:
+        dict: dictionary with miRNA names as keys and their average MRE positions as values
+    """
+    # calculate midpoint for each MRE
+    df["midpoint"] = df["start"] + 4
+
+    # group by miRNA name and collect midpoints for each group in a list
+    grouped = df.groupby("name")["midpoint"].apply(list)
+
+    # filter out miRNAs with less than two MREs
+    filtered = grouped[grouped.apply(len) >= 2]
+
+    return filtered.to_dict()
+
+
+
+
+def generate_close_proximity_column(df: pd.DataFrame, m: int = 13, n: int = 35) -> pd.DataFrame:
+    """
+    Generates a new column that checks for miRNA response elements (MREs) of the same miRNA
+    in close proximity (i.e., with a distance between 13 and 35 nucleotides).
+
+    Args:
+        df (pd.DataFrame): The dataframe output of the 'find_matches' function.
+        m (int): The minimum distance between MREs.
+        n (int): The maximum distance between MREs.
+
+    Returns:
+        pd.DataFrame: The result dataframe with an additional 'close_proximity' column.
+    """
+
+    # Add a midpoint column to the dataframe.
+    df["midpoint"] = df["start"] + df["alignment_string"].str.len() / 2
+
+    # Create a dictionary of midpoints for each miRNA.
+    midpoint_dict = create_midpoint_dict(df)
+
+    # Create a matrix of distances between all pairs of midpoints.
+    distances = [[abs(a - b) for (a, b) in combinations(midpoint_dict[mirna], 2)]
+                 for mirna in midpoint_dict]
+
+    # Create a dictionary of miRNA names that fit the proximity criteria.
+    temp_dict = {list(midpoint_dict)[x]: distances[x][y]
+                 for x, line in enumerate(distances)
+                 for y, i in enumerate(line)
+                 if m + 4 <= i <= n + 4}
+
+    # Find MRE positions having the desired distance from each other.
+    results = []
+    for name, temp_distance in temp_dict.items():
+        all_distances = midpoint_dict[name]
+        results.extend(
+            [name, [v1, v2]]
+            for v1, v2 in pairwise(all_distances)
+            if abs(v2 - v1) == temp_distance
+        )
+
+    # Create a boolean mask to identify the matching rows.
+    df_filter = df.apply(lambda row: any((row["name"] == i[0]) and (row["midpoint"] == j)
+                                         for i in results for j in i[1]), axis=1)
+
+    # Set the corresponding values to 1.
+    df.loc[df_filter, "close_proximity"] = 1
+
+    return df
+
+
+
+def generate_TA_column(df):
+    """
+    Adds TA values to every seed in result dataframe.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        Input DataFrame containing the 'seed' column.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A new DataFrame with the 'ta' column merged from the TA dataset.
+    """
+    ta_df = pd.read_csv("../data/supplementary_files/ta_sps.tsv", sep="\t", usecols=["mrna_seed", "ta"])
+
+    ta_df = ta_df.rename(columns={"mrna_seed": "seed"})
+    
+    return pd.merge(df, ta_df, on="seed", how="left")
+
+
+def generate_SPS_column(df):
+    """
+    Given a Pandas DataFrame containing miRNA target predictions, adds a column to the DataFrame indicating the SPS score
+    for each target site. The SPS score is a measure of the strength of the interaction between the miRNA and the target mRNA.
+    This function reads the SPS scores from a TSV file and merges them with the input DataFrame based on the seed sequence
+    of each target site.
+
+    Args:
+        df (pandas.DataFrame): A DataFrame containing miRNA target predictions with a "seed" column.
+
+    Returns:
+        pandas.DataFrame: A copy of the input DataFrame with an additional "7mer_sps" column indicating the SPS score
+        for each target site, or None if the site does not have a valid SPS score.
+    """
+
+    # Read in the SPS scores from a TSV file
+    sps_df = pd.read_csv("../data/supplementary_files/ta_sps.tsv", sep="\t", usecols=["mrna_seed", "7mer_sps"])
+
+    # Rename the "mrna_seed" column to match the "seed" column in the input DataFrame
+    sps_df = sps_df.rename(columns={"mrna_seed": "seed"})
+
+    # Filter the input DataFrame to only include rows where "7mer-m8" or "7mer-a1" is 1
+    mask = (df["7mer-m8"] == 1) | (df["7mer-a1"] == 1)
+
+    # Merge the input DataFrame with the SPS scores based on the "seed" column
+    merged_df = pd.merge(df, sps_df, on="seed", how="left")
+
+    # Set the "7mer_sps" value to None for rows that do not meet the filter criteria
+    merged_df.loc[~mask, "7mer_sps"] = None
+
+    return merged_df
+
 
 ######################################################################################################################
 ### driver function that generates CLASH type columns

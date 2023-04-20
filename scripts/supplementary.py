@@ -1,5 +1,7 @@
  
 import csv
+import os
+
 import pandas as pd
 from Bio import SeqIO
 
@@ -98,29 +100,51 @@ def read_ta_sps_data(file_path):
 
 def parse_clash_data(filename="data/raw_supplementary_files/mmc1.txt"):
     """
-    Parse the CLASH data into 2 csv's
+    Parse Clash data from the given file and write the results to output files.
+
+    Args:
+        filename (str): The path to the input file. Default is "data/raw_supplementary_files/mmc1.txt".
+
+    Raises:
+        FileNotFoundError: If the input file does not exist.
+
+    Returns:
+        None.
     """
+
     with open(filename) as f:
-        lines = f.readlines()
+        
+        # iter(f) is the same as (line for line in f)
+        lines = iter(f)
 
-    columns = []
-    data = []
-    for line in lines:
-        if line.startswith("#"):
-            line = line[1:]
-            row = line.strip().split("\t")
+        columns = []
+        data = []
+        for line in lines:
+            if line.startswith("#"):
+                line = line[1:]
+                row = next(csv.reader([line], delimiter='\t'))
+                columns.append(row)
+            else:
+                row = next(csv.reader([line], delimiter='\t'))
+                data.append(row)
 
-            columns.append(row)
+        # removes header text
+        columns.pop(0)
 
-        else:
-            row = line.strip().split("\t")
-            data.append(row)
+        # create the output directory if it doesn't exist
+        output_dir = "data/supplementary_files"
+        os.makedirs(output_dir, exist_ok=True)
 
-    # removes header text
-    columns.pop(0)
+        # write the output CSV files
+        with open(os.path.join(output_dir, "clash_column_details.tsv"), "w") as f1, \
+             open(os.path.join(output_dir, "clash.tsv"), "w") as f2:
+            writer1 = csv.writer(f1, delimiter='\t')
+            writer2 = csv.writer(f2, delimiter='\t')
+            writer1.writerows(columns)
+            writer2.writerows(data)
+        
 
-    with open("data/supplementary_files/clash_column_details.tsv", "w") as f:
-        csv.writer(f, delimiter="\t").writerows(columns)
+parse_clash_data()
+        
 
-    with open("data/supplementary_files/clash_data_parsed.tsv", "w") as f:
-        csv.writer(f, delimiter="\t").writerows(data)
+parse_clash_data()

@@ -26,6 +26,12 @@ def create_supplementary_files(): # improved
     and writes it to a tab-separated file in the same directory. Finally, it calls the
     parse_clash_data() function to parse CLASH data.
 
+    Raises:
+        FileNotFoundError: If the required file doesn't exist.
+        PermissionError: If you don't have permission to access the file or directory.
+        pd.errors.EmptyDataError: If the data file appears to be empty.
+        Exception: If an unexpected error occurs.
+
     Args:
         None
 
@@ -51,7 +57,7 @@ def create_supplementary_files(): # improved
         # ta_sps_df = read_ta_sps_data("data/raw_supplementary_files/bartel_2011_ta_sps_data.xlsx")
         # ta_sps_path = SUPPLEMENTARY_DIR / "ta_sps.tsv"
         # with ta_sps_path.open("w", newline="") as f:
-        #     ta_sps_df.to_csv(f, sep="\t", index=False)
+        # ta_sps_df.to_csv(f, sep="\t", index=False)
 
         parse_clash_data()
 
@@ -68,7 +74,7 @@ def create_supplementary_files(): # improved
 
 def analyze_data(sequence, targetscan_df, output_file, find_non_CLASH_types):
     
-    with tqdm(total=12, desc='Processing data') as pbar:
+    with tqdm(total=13, desc='Processing data') as pbar:
 
         # Step 1: Find matches
         pbar.set_description('Finding matches')
