@@ -1,7 +1,4 @@
-# pinned notes
-
-## would be nice if done TODO:
-
+## TODO:
 
 - küçük harf olan fastalarda script patlar
 - çizgi olan fastalarda script patlar
@@ -11,6 +8,30 @@
 
 - [x] target_abundance kolonu eklenecek (hedef UTR'da o miRNA'nın kaç tane non-overlapping hedefi var?)
 - [x] figure out a way to implement target_conservation (TargetScan uses Pct)
+
+
+
+
+opsiyonel:
+
+- https://www.nature.com/articles/nsmb.2230 
+- https://compgen.bio.ub.edu/datasets/454/docs/Parameters.html
+
+
+fonksiyonları birleştirip sonuç df'ini hazırla
+
+negatif dataseti hallet
+
+build xgb
+
+breast cancer vcf'lerini indir, vcfteki adresten sekansı çek
+
+çok sonraki işler:
+- signaturelerle ilişkilendirilmesi
+- sig based miRNA binding
+
+
+
 
 ## Problems:
 
@@ -37,6 +58,7 @@
 - added utils_v2.py, removed unnecessary functions from utils.py
 
 - changed create_supplementary_files.py into create_supplementary_files() in driver.py 
+- deprecated generate_avg_position_column()
 
 
 ## 6-13 April 2023:
@@ -49,30 +71,6 @@
 
 
 
-
-
-
-# TODO
-
-  truba
-
-opsiyonel:
-
-- https://www.nature.com/articles/nsmb.2230 
-- https://compgen.bio.ub.edu/datasets/454/docs/Parameters.html
-
-
-fonksiyonları birleştirip sonuç df'ini hazırla
-
-negatif dataseti hallet
-
-build xgb
-
-breast cancer vcf'lerini indir, vcfteki adresten sekansı çek
-
-çok sonraki işler:
-- signaturelerle ilişkilendirilmesi
-- sig based miRNA binding
 
 
 
