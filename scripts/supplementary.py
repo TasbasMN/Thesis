@@ -146,5 +146,3 @@ def parse_clash_data(filename="data/raw_supplementary_files/mmc1.txt"):
 
 parse_clash_data()
         
-
-parse_clash_data()

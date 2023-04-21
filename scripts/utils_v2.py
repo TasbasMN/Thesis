@@ -205,3 +205,47 @@ def find_k_consecutive_bps(df, k=8):
 
     return df
 
+
+def import_clash_df(data="../data/supplementary_files/clash.tsv", drop_irrelevant_columns=True):
+
+    
+
+    if drop_irrelevant_columns:
+        columns_to_keep = ["microRNA_name", "miRNA_seq", "mRNA_name",
+                           "mRNA_start", "mRNA_end_extended", "mRNA_seq_extended", "seed_type"]
+        clash_df = pd.read_csv(data, sep="\t", usecols=columns_to_keep)
+    
+    else:
+        clash_df = pd.read_csv(data, sep="\t")
+
+    # process microRNA_name column
+
+    new_cols = clash_df['microRNA_name'].str.split('_', expand=True)
+    new_cols.columns = ['accession', "from", 'mirna_name', 'temp']
+    clash_df = pd.concat([clash_df, new_cols], axis=1)
+    clash_df = clash_df.drop('microRNA_name', axis=1)
+    clash_df = clash_df.drop('temp', axis=1)
+    clash_df = clash_df.drop('from', axis=1)
+
+    # process mRNA_name column
+
+    new_cols = clash_df['mRNA_name'].str.split('_', expand=True)
+    new_cols.columns = ['ensg', "enst", 'gene_name', 'temp']
+    clash_df = pd.concat([clash_df, new_cols], axis=1)
+    clash_df = clash_df.drop('mRNA_name', axis=1)
+    clash_df = clash_df.drop('temp', axis=1)
+    
+    rename_dict = {
+    'miRNA_seq': 'mirna_sequence',
+    'mRNA_start': 'start',
+    'mRNA_end_extended': 'end',
+    'mRNA_seq_extended': 'mrna_sequence',
+    'seed_type': 'seed_type',
+    'accession': 'accession',
+    'mirna_name': 'mirna_name',
+    'ensg': 'ENSG',
+    'enst': 'ENST',
+    'gene_name': 'gene_name'
+}
+
+    return clash_df.rename(columns=rename_dict)

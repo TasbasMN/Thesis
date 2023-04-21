@@ -132,16 +132,17 @@ def find_matches_slice(sequence_slice, targetscan_df, start_pos=0, allow_wobbles
     
     
     
-def find_matches(sequence, targetscan_df, allow_wobbles=False, minimum_matches=7):
+def find_matches(sequence, mirna_df, allow_wobbles=False, minimum_matches=7):
 
     # Preparing stuff
-    names = targetscan_df["name"].tolist()
+    df_names = mirna_df["name"].tolist()
     
-    mirna_sequences = targetscan_df["sequence"].tolist()
-    name_results, starts, sequences, alignment_strings, pair_counts, wobble_counts = [], [], [], [], [], []
+    df_sequences = mirna_df["sequence"].tolist()
+    
+    names, starts, mirna_sequences, mrna_sequences, alignment_strings, pair_counts, wobble_counts = [], [], [], [], [], [], []
 
     # For each miRNA
-    for i, mirna_sequence in enumerate(mirna_sequences):
+    for i, mirna_sequence in enumerate(df_sequences):
         # Create a generator for sliding windows
         generator = sliding_window(
             thymine_to_uracil(sequence), len(mirna_sequence))
@@ -155,18 +156,20 @@ def find_matches(sequence, targetscan_df, allow_wobbles=False, minimum_matches=7
             if pair_count < minimum_matches:
                 continue
             # Add the results to the lists
-            name_results.append(names[i])
+            names.append(df_names[i])
             starts.append(c)
-            sequences.append(mirna_sequence)
+            mirna_sequences.append(mirna_sequence)
+            mrna_sequences.append(window)
             alignment_strings.append(alignment_string)
             pair_counts.append(pair_count)
             wobble_counts.append(wobble_count)
 
     df = pd.DataFrame(
         {
-            "name": name_results,
+            "name": names,
             "start": starts,
-            "mirna_sequence": sequences,
+            "mirna_sequence": mirna_sequences,
+            "mrna_sequence": mrna_sequences,
             "alignment_string": alignment_strings,
             "no_of_base_pairs": pair_counts,
             "no_of_wobbles": wobble_counts,
@@ -180,6 +183,7 @@ def find_matches(sequence, targetscan_df, allow_wobbles=False, minimum_matches=7
     df["seed"] = df["mirna_sequence"].str[-8:-1]
     
     return df
+
 
 
 def find_k_consecutive_bps(df, k=8):
@@ -202,3 +206,46 @@ def find_k_consecutive_bps(df, k=8):
 
     return df
 
+def import_clash_df(data="../data/supplementary_files/clash.tsv", drop_irrelevant_columns=True):
+
+    
+
+    if drop_irrelevant_columns:
+        columns_to_keep = ["microRNA_name", "miRNA_seq", "mRNA_name",
+                           "mRNA_start", "mRNA_end_extended", "mRNA_seq_extended", "seed_type"]
+        clash_df = pd.read_csv(data, sep="\t", usecols=columns_to_keep)
+    
+    else:
+        clash_df = pd.read_csv(data, sep="\t")
+
+    # process microRNA_name column
+
+    new_cols = clash_df['microRNA_name'].str.split('_', expand=True)
+    new_cols.columns = ['accession', "from", 'mirna_name', 'temp']
+    clash_df = pd.concat([clash_df, new_cols], axis=1)
+    clash_df = clash_df.drop('microRNA_name', axis=1)
+    clash_df = clash_df.drop('temp', axis=1)
+    clash_df = clash_df.drop('from', axis=1)
+
+    # process mRNA_name column
+
+    new_cols = clash_df['mRNA_name'].str.split('_', expand=True)
+    new_cols.columns = ['ensg', "enst", 'gene_name', 'temp']
+    clash_df = pd.concat([clash_df, new_cols], axis=1)
+    clash_df = clash_df.drop('mRNA_name', axis=1)
+    clash_df = clash_df.drop('temp', axis=1)
+    
+    rename_dict = {
+    'miRNA_seq': 'mirna_sequence',
+    'mRNA_start': 'start',
+    'mRNA_end_extended': 'end',
+    'mRNA_seq_extended': 'mrna_sequence',
+    'seed_type': 'seed_type',
+    'accession': 'accession',
+    'mirna_name': 'mirna_name',
+    'ensg': 'ENSG',
+    'enst': 'ENST',
+    'gene_name': 'gene_name'
+}
+
+    return clash_df.rename(columns=rename_dict)
