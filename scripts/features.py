@@ -436,7 +436,7 @@ def generate_SPS_column(df):
 ######################################################################################################################
 ### driver function that generates CLASH type columns
 
-def find_clash_types(df, find_non_CLASH_types=False, drop_flag_column=True):
+def generate_ohe_CLASH_type_column(df, find_non_CLASH_types=False, drop_flag_column=True):
     """
     Finds CLASH sites in the input DataFrame `df`.
 

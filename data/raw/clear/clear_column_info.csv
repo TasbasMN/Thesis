@@ -1,0 +1,22 @@
+Column,Description
+cluster.ID,unique chimera cluster ID in format chromosome_start_end_miRNA
+chr,chromosome
+start,chromosome start position of chimera cluster (hg18)
+end,chromosome end position of chimera cluster (hg18)
+N,"""cluster size""-- number of individually cloned events comprising a chimera cluster"
+strand,chromosome strand
+region,transcript region of interaction
+gene.id,Entrez gene ID for cluster
+gene.symbol,Offical gene sybol for cluster
+miRNA,ligated microRNA for chimera cluster
+miR.map,"RNAhybrid duplex structure prediction for miRNA, where ""|""= Watson-Crick base-pairing; ""W"" = G-U wobble pairing; ""-"" = mismatched or unpaired sites"
+target.map,RNAhybrid duplex structure prediction for target
+MFE,RNAhybrid predicted minimum free energy for duplex structure
+duplex.start,Predicted start position of duplex structure in 75 nucleotide target region (where position 1 is the first nucleotide of the chimera cluster)
+seed match,"Strongest seed match within 75 nucleotide target region (where position 1 is first nucleotide of chimera cluster).    ""mm"" = mismatch and ""indel"" = insertion or deletion in target motif (resulting in bulged nucleotide) "
+seed position,Position of seed match within 75 nucleotide target region (where position 1 is first nucleotide of chimera cluster)
+bulged miRNA site,Position in miRNA (where position 1 is miRNA 5' end) of bulged miRNA nucleotides.  Only applicable to sites with seed matches with single nucleotide deletions.
+bulged target site,"Position with respect to miRNA of bulged target nucleotides (e.g. 2,3 indicates a bulged target nucleotide between miRNA positions 2 and 3). Only applicable to sites with seed matches with single nucleotide insertions."
+mismatch seed site,"Position in miRNA (where position 1 is miRNA 5' end) of seed mismatch, when present."
+mismatched or bulged nucleotide,"For sites with bulged or mismatched motifs, involved nucleotides are indicated.  For bulged motifs, the bulged miRNA or target residue is indicated.   For mismatched motifs, the atypical base pairing is indicated as ""miRNA nucleotide,target nucleotide."""
+k.group,"Interaction cluster, according to k-means clustering of duplex structures (Fig. 4)."

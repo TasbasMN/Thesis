@@ -64,21 +64,22 @@ def reverse_complement(seq):
 # thematic sequence manipulation
 
 
-def mirna_to_mrna(seq):
+def mirna_to_mrna(string):
     """
-    Translates a given miRNA sequence into its corresponding mRNA sequence by
-    replacing each nucleotide with its complementary base and reversing the
-    resulting sequence (reverse complement).
+    Convert a miRNA sequence to its complementary mRNA sequence.
 
     Args:
-        seq (str): The miRNA sequence to translate.
+    - string (str): The miRNA sequence to convert.
 
     Returns:
-        str: The mRNA sequence obtained by replacing each nucleotide in `seq`
-        with its complementary base and reversing the resulting sequence.
+    - str: The complementary mRNA sequence.
+
+    Example usage:
+    >>> mirna_to_mrna('UGAGGUAGUAGGUUGUAUAGUU')
+    'UAUACAACCACUACUCCAUCA'
     """
-    complements = str.maketrans("AUCG", "UAGC")
-    return seq.translate(complements)[::-1]
+    complement = {'A': 'U', 'C': 'G', 'G': 'C', 'U': 'A'}
+    return ''.join(complement.get(base, base) for base in string)[::-1]
 
 
 def uracil_to_thymine(seq):

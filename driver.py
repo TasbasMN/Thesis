@@ -54,7 +54,7 @@ def create_supplementary_files(): # improved
             mirbase_df.to_csv(f, sep="\t", index=False)
 
         # Uncomment the following code if you want to create a ta_sps.tsv file
-        # ta_sps_df = read_ta_sps_data("data/raw_supplementary_files/bartel_2011_ta_sps_data.xlsx")
+        # ta_sps_df = read_ta_sps_data("data/raw/ta_sps/bartel_2011_ta_sps_data.xlsx")
         # ta_sps_path = SUPPLEMENTARY_DIR / "ta_sps.tsv"
         # with ta_sps_path.open("w", newline="") as f:
         # ta_sps_df.to_csv(f, sep="\t", index=False)

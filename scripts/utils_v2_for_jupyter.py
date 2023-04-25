@@ -212,7 +212,7 @@ def import_clash_df(data="../data/supplementary_files/clash.tsv", drop_irrelevan
 
     if drop_irrelevant_columns:
         columns_to_keep = ["microRNA_name", "miRNA_seq", "mRNA_name",
-                           "mRNA_start", "mRNA_end_extended", "mRNA_seq_extended", "seed_type"]
+                           "mRNA_start", "mRNA_end_extended", "mRNA_seq_extended", "seed_type", "folding_class"]
         clash_df = pd.read_csv(data, sep="\t", usecols=columns_to_keep)
     
     else:
@@ -245,7 +245,8 @@ def import_clash_df(data="../data/supplementary_files/clash.tsv", drop_irrelevan
     'mirna_name': 'mirna_name',
     'ensg': 'ENSG',
     'enst': 'ENST',
-    'gene_name': 'gene_name'
+    'gene_name': 'gene_name',
+    "folding_class": "folding_class"
 }
 
     return clash_df.rename(columns=rename_dict)
