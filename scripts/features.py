@@ -73,7 +73,7 @@ def find_CLASH_II_sites(df):
     regex_pattern1 = r"1{7}0$"
     # looks for matches in positions 13-16
     regex_pattern2 = r"1{4}[01]{12}$"
-    new_column_name = "CLASH_II"
+    new_column_name = "pred_type_2"
 
     return find_2_regex_matches(df, regex_pattern1, regex_pattern2, new_column_name)
 
@@ -103,7 +103,7 @@ def find_CLASH_III_sites(df):
     regex_pattern1 = r"1{7}0$"
     # looks for matches in positions 17-21
     regex_pattern2 = r"1{4}[01]{16}$"
-    new_column_name = "CLASH_III"
+    new_column_name = "pred_type_3"
 
     return find_2_regex_matches(df, regex_pattern1, regex_pattern2, new_column_name)
 
@@ -123,7 +123,7 @@ def find_CLASH_IV_sites(df):
     regex_pattern1 = r"0{7}0$"
     # looks for 9 consecutive matches
     regex_pattern2 = r"1{9}"
-    new_column_name = "CLASH_IV"
+    new_column_name = "pred_type_4"
 
     return find_2_regex_matches(df, regex_pattern1, regex_pattern2, new_column_name)
 
@@ -143,7 +143,7 @@ def find_compensatory_sites(df):
     regex_pattern1 = r"11{5}0{1}0$|11{4}0{1}1{1}0$|11{3}0{1}1{2}0$|11{2}0{1}1{3}0$|11{1}0{1}1{4}0$|11{0}0{1}1{5}0$|10{1}1{5}0$"
     # looks for matches in positions 13-16
     regex_pattern2 = r"1{4}[01]{12}$"
-    new_column_name = "compensatory"
+    new_column_name = "pred_compensatory"
 
     return find_2_regex_matches(df, regex_pattern1, regex_pattern2, new_column_name)
 
@@ -208,7 +208,7 @@ def find_8mer_sites(df):
     """
     # looks for 8mers
     regex_pattern = r"1{8}$"
-    new_column_name = "8mer"
+    new_column_name = "pred_8mer"
 
     return find_1_regex_matches(df, regex_pattern, new_column_name)
 
@@ -224,7 +224,7 @@ def find_7mer_a1_sites(df):
     - pandas DataFrame with new column "7mer-a1" containing the matches
     """
     regex_pattern = r"01{7}$"
-    new_column_name = "7mer-a1"
+    new_column_name = "pred_7mer-a1"
 
     return find_1_regex_matches(df, regex_pattern, new_column_name)
 
@@ -243,7 +243,7 @@ def find_7mer_m8_sites(df):
     """
     # looks for 7mer-m8s
     regex_pattern = r"1{7}0$"
-    new_column_name = "7mer-m8"
+    new_column_name = "pred_7mer-m8"
 
     return find_1_regex_matches(df, regex_pattern, new_column_name)
 
@@ -260,7 +260,7 @@ def find_seed_with_1_mismatch(df):
     """
     # looks for seeds with 1 mismatch
     regex_pattern = r"11{5}0{1}0$|11{4}0{1}1{1}0$|11{3}0{1}1{2}0$|11{2}0{1}1{3}0$|11{1}0{1}1{4}0$|11{0}0{1}1{5}0$|10{1}1{5}0$"
-    new_column_name = "seed_with_1_mismatch"
+    new_column_name = "pred_seed_with_1_mismatch"
 
     return find_1_regex_matches(df, regex_pattern, new_column_name)
 
@@ -280,7 +280,7 @@ def find_centered_site(df):
     """
     # looks for seeds with 1 mismatch
     regex_pattern = r"1{11}[01]{4}$|1{11}[01]{3}$"
-    new_column_name = "centered_site"
+    new_column_name = "pred_centered_site"
 
     return find_1_regex_matches(df, regex_pattern, new_column_name)
 
@@ -298,9 +298,9 @@ def find_CLASH_V_sites(df, threshold=11):
         corresponding row meets the threshold condition and the "flag_column" value is None, and 0 otherwise.
     """
 
-    mask = (df["no_of_base_pairs"] >= threshold) & df["flag_column"].isnull()
+    mask = (df["pred_no_of_bp"] >= threshold) & df["flag_column"].isnull()
 
-    df["CLASH_V"] = mask.astype(int)
+    df["pred_type_5"] = mask.astype(int)
 
     return df
 
@@ -436,15 +436,15 @@ def generate_SPS_column(df):
 ######################################################################################################################
 ### driver function that generates CLASH type columns
 
-def generate_ohe_CLASH_type_column(df, find_non_CLASH_types=False, drop_flag_column=True):
+def find_clash_types(df, find_noncanonical=False, drop_flag_column=True):
     """
-    Finds CLASH sites in the input DataFrame `df`.
+    Finds CLASH sites in the input DataFrame `df` using regex.
 
     Parameters
     ----------
     df : pandas.DataFrame
         The input DataFrame to search for CLASH sites.
-    find_non_CLASH_types : bool, optional
+    find_noncanonical : bool, optional
         If True, also finds non-CLASH sites in the DataFrame, by calling
         `find_compensatory_sites`, `find_seed_with_1_mismatch`, and
         `find_centered_site`. Defaults to False.
@@ -470,7 +470,7 @@ def generate_ohe_CLASH_type_column(df, find_non_CLASH_types=False, drop_flag_col
     df = find_CLASH_IV_sites(df)
     df = find_CLASH_V_sites(df)
 
-    if find_non_CLASH_types:
+    if find_noncanonical:
         df = find_compensatory_sites(df)
         df = find_seed_with_1_mismatch(df)
         df = find_centered_site(df)

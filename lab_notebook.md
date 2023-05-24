@@ -11,7 +11,10 @@
 
 
 
+## 20-27 April 2023
 
+- revamped data folder
+- new data, grosswendt 2014
 
 
 
@@ -36,11 +39,6 @@ breast cancer vcf'lerini indir, vcfteki adresten sekansı çek
 - sig based miRNA binding
 
 
-
-
-## Problems:
-
-- ta_sps tsv can't be created because it is an excel file. find a way
 
 13 Nisan
 
