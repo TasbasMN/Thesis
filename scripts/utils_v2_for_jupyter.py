@@ -1,10 +1,10 @@
 # this module contains helper functions for the v2.0 pipeline
 
 
-
-from nucleotide_toolkit import *
+from scripts.nucleotide_toolkit import *
 
 import pandas as pd
+import numpy as np
 
 #######################################################################################################################
 ### small utilities
@@ -23,24 +23,9 @@ def sliding_window(sequence, win_size):
     """
     for i in range(len(sequence) - win_size + 1):
         yield sequence[i: i + win_size]
-        
 
-# def import_fasta(fasta):
-#     """
-#     Parses a FASTA file and returns a string of transcripts with thymine
-#     bases converted to uracil.
 
-#     :param fasta: The path to the FASTA file to parse.
-#     :type fasta: str
-#     :return: A string of transcripts with thymine bases converted to uracil.
-#     :rtype: str
-#     """
-#     with open(fasta) as f:
-#         records = SeqIO.parse(f, "fasta")
-#         transcripts = [thymine_to_uracil(str(rec.seq)) for rec in records]
-#         return "".join(transcripts)
-
-def parse_fasta_file(file_path):
+def parse_fasta_file_into_rna(file_path):
     """
     Parses a FASTA file and returns the DNA sequence as a string with thymine replaced by uracil.
 
@@ -90,102 +75,6 @@ def align_sequences(seq1, seq2, allow_wobbles=False):
 
     return "".join(alignment_string), pair_count, wobble_count
 
-def find_matches_slice(sequence_slice, targetscan_df, start_pos=0, allow_wobbles=False, minimum_matches=7):
-    
-    # Preparing stuff
-    names = targetscan_df["name"].tolist()
-    mirna_sequences = targetscan_df["sequence"].tolist()
-    name_results, starts, alignment_strings, pair_counts, wobble_counts = [], [], [], [], []
-
-    # For each miRNA
-    for i, mirna_sequence in enumerate(mirna_sequences):
-
-        # Create a generator for sliding windows
-        generator = sliding_window(thymine_to_uracil(sequence_slice), len(mirna_sequence))
-
-        # For each window
-        for c, window in enumerate(generator, start=1):
-            # Align the window with the miRNA sequence
-            alignment_string, pair_count, wobble_count = align_sequences(window, mirna_sequence, allow_wobbles=allow_wobbles)
-            # Check if the result is poor
-            if pair_count < minimum_matches:
-                continue
-            # Add the results to the lists
-            name_results.append(names[i])
-            starts.append(start_pos + c - 1)
-            alignment_strings.append(alignment_string)
-            pair_counts.append(pair_count)
-            wobble_counts.append(wobble_count)
-
-    return pd.DataFrame(
-        {
-            "names": name_results,
-            "start": starts,
-            "alignment_string": alignment_strings,
-            "no_of_base_pairs": pair_counts,
-            "no_of_wobbles": wobble_counts,
-            "no_of_bp+wobbles": [
-                sum(x) for x in zip(pair_counts, wobble_counts)
-            ],
-        }
-    )
-    
-    
-    
-def find_matches(sequence, mirna_df, allow_wobbles=False, minimum_matches=7):
-
-    # Preparing stuff
-    df_names = mirna_df["name"].tolist()
-    
-    df_sequences = mirna_df["sequence"].tolist()
-    
-    names, starts, mirna_sequences, mrna_sequences, alignment_strings, pair_counts, wobble_counts = [], [], [], [], [], [], []
-
-    # For each miRNA
-    for i, mirna_sequence in enumerate(df_sequences):
-        # Create a generator for sliding windows
-        generator = sliding_window(
-            thymine_to_uracil(sequence), len(mirna_sequence))
-
-        # For each window
-        for c, window in enumerate(generator, start=1):
-            # Align the window with the miRNA sequence
-            alignment_string, pair_count, wobble_count = align_sequences(
-                window, mirna_sequence, allow_wobbles=allow_wobbles)
-            # Check if the result is poor
-            if pair_count < minimum_matches:
-                continue
-            # Add the results to the lists
-            names.append(df_names[i])
-            starts.append(c)
-            mirna_sequences.append(mirna_sequence)
-            mrna_sequences.append(window)
-            alignment_strings.append(alignment_string)
-            pair_counts.append(pair_count)
-            wobble_counts.append(wobble_count)
-
-    df = pd.DataFrame(
-        {
-            "name": names,
-            "start": starts,
-            "mirna_sequence": mirna_sequences,
-            "mrna_sequence": mrna_sequences,
-            "alignment_string": alignment_strings,
-            "no_of_base_pairs": pair_counts,
-            "no_of_wobbles": wobble_counts,
-            "no_of_bp+wobbles": [
-                sum(x) for x in zip(pair_counts, wobble_counts)
-            ],
-        }
-    )
-    
-    # adding seed column
-    df["seed"] = df["mirna_sequence"].str[-8:-1]
-    
-    return df
-
-
-
 def find_k_consecutive_bps(df, k=8):
     """Finds kmers located anywhere in the mRNA - miRNA complex.
 
@@ -206,47 +95,171 @@ def find_k_consecutive_bps(df, k=8):
 
     return df
 
-def import_clash_df(data="../data/supplementary_files/clash.tsv", drop_irrelevant_columns=True):
+###############################################################################################################################################
+
+def slide_and_compare_sequences(mirna_seq, mrna_seq, start_pos, min_matches):
+    """
+    Slide a window of length len(mirna_seq) along mrna_seq, and check for matches
+    between the two sequences. Return the starting and ending positions of windows
+    with at least min_matches matches, along with the matching window
+    sequences and alignment strings.
+    """
+
+    # Reverse complement miRNA sequence
+    mirna_seq = reverse_complement(mirna_seq)
+
+    # Convert sequences to arrays
+    mirna_arr = np.array(list(mirna_seq))
+    mrna_arr = np.array(list(mrna_seq))
+
+    # Create sliding window view of mRNA sequence
+    sliding_window = np.lib.stride_tricks.sliding_window_view(mrna_arr, len(mirna_arr))
+
+    # Get matching window sequences
+    mrna_windows = np.apply_along_axis("".join, 1, sliding_window)
+
+    # Get number of matches for each window
+    no_of_matches = np.sum(sliding_window == mirna_arr, axis=1)
+
+    # Get starting and ending positions of matching windows
+    starts = start_pos + np.arange(len(mrna_arr) - len(mirna_arr) + 1) 
+    ends = starts + len(mirna_arr) - 1
+
+    # Generate alignment strings for each window
+    alignments = ["".join(["1" if i == 1 else "0" for i in row]) for row in (sliding_window == mirna_arr)]
+
+    # Filter out windows with too few no_of_matches
+    mask = no_of_matches < min_matches
+    
+    starts = np.delete(starts, np.where(mask))
+    ends = np.delete(ends, np.where(mask))
+    alignments = np.delete(alignments, np.where(mask))
+    no_of_matches = np.delete(no_of_matches, np.where(mask))
+    mrna_windows = np.delete(mrna_windows, np.where(mask))
+    
+    # calculating matches in seed regions
+    match_counts_in_seed_regions = [i[-7:-1].count("1") for i in alignments]
+
+    return starts, ends, alignments, no_of_matches, mrna_windows, match_counts_in_seed_regions
+
+
+def find_matches(df):
+    """
+    Find all matches between miRNA and mRNA sequences in a given DataFrame.
+    """
+    
+    ids = []
+    
+    pred_starts = []
+    true_starts = []
+    
+    pred_ends = []
+    true_ends = []
+    
+    pred_no_of_bp = []
+    true_no_of_bp = []
+    
+    pred_no_of_bp_in_seed = []
+    true_no_of_bp_in_seed = []
+    
+    alignment_strings = []
+    mrna_sequences = []
+    mirna_sequences = []
+    
+    true_seed_types = []
+    folding_classes = []
+    
+    mirna_names = []
+    ensgs = []
 
     
 
-    if drop_irrelevant_columns:
-        columns_to_keep = ["microRNA_name", "miRNA_seq", "mRNA_name",
-                           "mRNA_start", "mRNA_end_extended", "mRNA_seq_extended", "seed_type", "folding_class"]
-        clash_df = pd.read_csv(data, sep="\t", usecols=columns_to_keep)
+    for _, row in df.iterrows():
+        start, end, alignment_string, no_of_bp, mrna_sequence, pred_matches_in_seed = slide_and_compare_sequences(row.mirna_sequence, row.mrna_sequence, row.true_start, 7)
+        
+        # appending results of slide_and_compare
+        pred_starts.extend(start.tolist())
+        true_starts.extend([row.true_start] * len(start))
+        
+        pred_ends.extend(end.tolist())
+        true_ends.extend([row.true_end] * len(start))
+        
+        pred_no_of_bp.extend(no_of_bp.tolist())
+        true_no_of_bp.extend([row.num_basepairs] * len(start))
+        
+        pred_no_of_bp_in_seed.extend(pred_matches_in_seed)
+        true_no_of_bp_in_seed.extend([row.seed_basepairs] * len(start))    
+        
+        alignment_strings.extend(alignment_string)
+        mrna_sequences.extend(mrna_sequence)
+        
+        # datas that are exploded
+        ids.extend([row.id] * len(start))        
+        mirna_sequences.extend([row.mirna_sequence] * len(start))
+        true_seed_types.extend([row.true_seed_type] * len(start))
+        folding_classes.extend([row.true_folding_class] * len(start))
+        
+        mirna_names.extend([row.mirna_name] * len(start))
+        ensgs.extend([row.ensg] * len(start))
+        
+
+    return pd.DataFrame(
+        {
+            "id": ids,
+            "pred_start": pred_starts,
+            "true_start": true_starts,
+            
+            "pred_end": pred_ends,
+            "true_end": true_ends,
+            
+            "pred_no_of_bp": pred_no_of_bp,
+            "true_no_of_bp": true_no_of_bp,
+            
+            "pred_no_of_bp_in_seed": pred_no_of_bp_in_seed,
+            "true_no_of_bp_in_seed": true_no_of_bp_in_seed,
+            
+            "alignment_string": alignment_strings,
+            
+            "mirna_sequence": mirna_sequences,
+            "mrna_sequence": mrna_sequences,
+            
+            "true_seed_type": true_seed_types,
+            "true_folding_class": folding_classes,
+            
+            "mirna_name": mirna_names,
+            "ensg": ensgs
+        }
+    )
+
+
+def ohe_true_match_types(df):
     
-    else:
-        clash_df = pd.read_csv(data, sep="\t")
-
-    # process microRNA_name column
-
-    new_cols = clash_df['microRNA_name'].str.split('_', expand=True)
-    new_cols.columns = ['accession', "from", 'mirna_name', 'temp']
-    clash_df = pd.concat([clash_df, new_cols], axis=1)
-    clash_df = clash_df.drop('microRNA_name', axis=1)
-    clash_df = clash_df.drop('temp', axis=1)
-    clash_df = clash_df.drop('from', axis=1)
-
-    # process mRNA_name column
-
-    new_cols = clash_df['mRNA_name'].str.split('_', expand=True)
-    new_cols.columns = ['ensg', "enst", 'gene_name', 'temp']
-    clash_df = pd.concat([clash_df, new_cols], axis=1)
-    clash_df = clash_df.drop('mRNA_name', axis=1)
-    clash_df = clash_df.drop('temp', axis=1)
+        
+    roman_dict = {
+        "I": 1,
+        "II": 2,
+        "III": 3,
+        "IV": 4,
+        "V": 5,}
     
-    rename_dict = {
-    'miRNA_seq': 'mirna_sequence',
-    'mRNA_start': 'start',
-    'mRNA_end_extended': 'end',
-    'mRNA_seq_extended': 'mrna_sequence',
-    'seed_type': 'seed_type',
-    'accession': 'accession',
-    'mirna_name': 'mirna_name',
-    'ensg': 'ENSG',
-    'enst': 'ENST',
-    'gene_name': 'gene_name',
-    "folding_class": "folding_class"
-}
+    # replacing romans into numerical
+    df["true_folding_class"] = df["true_folding_class"].replace(roman_dict)
 
-    return clash_df.rename(columns=rename_dict)
+    # creating ohe labels
+    labels_df = pd.get_dummies(df["true_folding_class"])
+    
+    # concatenating labels + original df
+    df = pd.concat([df, labels_df], axis=1)
+    
+    # dropping original column
+    df.drop(columns="true_folding_class", inplace=True)
+    
+    rename_dict = {1: "true_type_1",
+                2: "true_type_2",
+                3: "true_type_3",
+                4: "true_type_4",
+                5: "true_type_5"}
+
+    df.rename(columns=rename_dict, inplace=True)
+    
+    return df

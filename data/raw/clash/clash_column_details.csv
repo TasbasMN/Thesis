@@ -1,0 +1,27 @@
+ Column 1,seq_ID,unique ID of interaction
+ Column 2,microRNA_name,miRNA name from miRBase release 15
+ Column 3,miRNA_start,start coordinate in miRNA
+ Column 4,miRNA_end,end coordinate in miRNA
+ Column 5,miRNA_seq,sequence of miRNA (start -- end)
+ Column 6,mRNA_name,gene name and mRNA transcript name from ENSEMBL release 60
+ Column 7,mRNA_start,start coordinate in mRNA transcript
+ Column 8,mRNA_end_extended,"end coordinate in mRNA transcript, bioinformatically extended by 25 nt"
+ Column 9,mRNA_seq_extended,sequence of mRNA fragment (start -- end+25 nt)
+ Column 10,chimeras_decompressed,number of chimeric reads from experiments E1-E6 supporting the interaction
+ Column 11,experiments,number of experiments in which reads supporting the interaction were found
+ Column 12,experiments_list,names of experiments in which reads supporting the interaction were found
+ Column 13,microRNA_first,"1 if the order of fragments in chimera was ""miRNA-mRNA""; 0 otherwise"
+ Column 14,two_way_merged,"1 if both ""miRNA-mRNA"" and ""mRNA-miRNA"" chimeras were found; 0 otherwise"
+ Column 15,seed_type,type of seed (defined as in Figure 2A)
+ Column 16,num_basepairs,number of predicted basepairs between miRNA and mRNA
+ Column 17,seed_basepairs,number of predicted basepairs between nts 2-7 of miRNA and mRNA
+ Column 18,folding_energy,predicted minimum energy of interaction between miRNA and mRNA
+ Column 19,5'UTR,1 if mRNA fragment of chimera overlaps the 5' UTR; 0 otherwise
+ Column 20,CDS,1 if mRNA fragment of chimera overlaps the CDS; 0 otherwise
+ Column 21,3'UTR,1 if mRNA fragment of chimera overlaps the 3' UTR; 0 otherwise
+ Column 22,folding_class,miRNA-mRNA folding class (defined as in Figure 3B)
+ Column 23,conservation_score,Phylogenetic conservation of interacting region based on PhyloP scores (see Supplemental Experimental Procedures)
+ Column 24,log2_target_enrichment,Enrichment of mRNA following depletion of 25 miRNAs in Hafner et al. (2010)
+ Column 25,CLASH_single_reads_ovlp,Number of nonchimeric reads overlapping mRNA fragment
+ Column 26,CLASH_cluster_ovlp,1 if cluster of single reads overlaps mRNA fragment; NA otherwise
+ Column 27,PAR_CLIP_cluster_ovlp,1 if cluster of reads from Hafner et al. (2010) overlaps mRNA fragment; NA otherwise
