@@ -1,10 +1,7 @@
 .git/**
 .ipynb_checkpoints/**
 .obsidian/**
-.venv/**
-tenv/**
-ViennaRNA-2.4.17/**
-
-blast_test/**
-
+results/**
+data/raw/targetscan/targetscan_all_predictions.txt/
+data/raw/targetscan/targetscan_all_predictions_big.txt
 scripts/__pycache__/**
