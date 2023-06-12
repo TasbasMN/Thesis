@@ -1,5 +1,6 @@
 # this module contains helper functions for the v2.0 pipeline
 
+import itertools
 
 from scripts.nucleotide_toolkit import *
 
@@ -171,6 +172,8 @@ def find_matches(df):
     
     mirna_names = []
     ensgs = []
+    
+    accessions = []
 
     
 
@@ -202,6 +205,9 @@ def find_matches(df):
         mirna_names.extend([row.mirna_name] * len(start))
         ensgs.extend([row.ensg] * len(start))
         
+        accessions.extend([row.mirna_accession] * len(start))
+        
+        
 
     return pd.DataFrame(
         {
@@ -227,7 +233,8 @@ def find_matches(df):
             "true_folding_class": folding_classes,
             
             "mirna_name": mirna_names,
-            "ensg": ensgs
+            "ensg": ensgs,
+            "accession": accessions
         }
     )
 
@@ -263,3 +270,82 @@ def ohe_true_match_types(df):
     df.rename(columns=rename_dict, inplace=True)
     
     return df
+
+
+def smith_waterman(sequence1, sequence2, match_score, mismatch_score, gap_open_penalty, gap_extension_penalty):
+    # sourcery skip: low-code-quality
+    # Initialize the scoring matrix and traceback matrix
+    rows = len(sequence1) + 1
+    cols = len(sequence2) + 1
+    score_matrix = [[0] * cols for _ in range(rows)]
+    traceback_matrix = [[0] * cols for _ in range(rows)]
+
+    # Fill the scoring matrix
+    for i, j in itertools.product(range(1, rows), range(1, cols)):
+        match = score_matrix[i - 1][j - 1] + (match_score if sequence1[i - 1] == sequence2[j - 1] else mismatch_score)
+        delete = score_matrix[i - 1][j] - (gap_open_penalty if traceback_matrix[i - 1][j] != 'u' else gap_extension_penalty)
+        insert = score_matrix[i][j - 1] - (gap_open_penalty if traceback_matrix[i][j - 1] != 'l' else gap_extension_penalty)
+        score_matrix[i][j] = max(0, match, delete, insert)
+
+        # Update the traceback matrix
+        if score_matrix[i][j] == match:
+            traceback_matrix[i][j] = 'd'  # Diagonal
+        elif score_matrix[i][j] == delete:
+            traceback_matrix[i][j] = 'u'  # Up
+        elif score_matrix[i][j] == insert:
+            traceback_matrix[i][j] = 'l'  # Left
+
+    # Find the cell with the highest score
+    max_score = 0
+    max_i = 0
+    max_j = 0
+    for i, j in itertools.product(range(rows), range(cols)):
+        if score_matrix[i][j] > max_score:
+            max_score = score_matrix[i][j]
+            max_i = i
+            max_j = j
+
+    # Traceback from the highest-scoring cell to build the alignment
+    alignment1 = ""
+    alignment2 = ""
+    alignment_string = ""
+    i, j = max_i, max_j
+    while score_matrix[i][j] != 0:
+        if traceback_matrix[i][j] == 'd':  # Diagonal
+            alignment1 = sequence1[i - 1] + alignment1
+            alignment2 = sequence2[j - 1] + alignment2
+            alignment_string = ("1" if sequence1[i - 1] == sequence2[j - 1] else "0") + alignment_string
+            i -= 1
+            j -= 1
+        elif traceback_matrix[i][j] == 'u':  # Up
+            alignment1 = sequence1[i - 1] + alignment1
+            alignment2 = '-' + alignment2
+            alignment_string = "0" + alignment_string
+            i -= 1
+        elif traceback_matrix[i][j] == 'l':  # Left
+            alignment1 = '-' + alignment1
+            alignment2 = sequence2[j - 1] + alignment2
+            alignment_string = "0" + alignment_string
+            j -= 1
+
+    # Calculate starting and ending indices of the alignment
+    start_index1 = i + 1
+    end_index1 = i + len(alignment1)
+    start_index2 = j + 1
+    end_index2 = j + len(alignment2)
+
+    # Print the alignment with start and end indices
+    print(f"{alignment1}")
+    print(alignment_string)
+    print(f"{alignment2}")
+
+    # Return the start and end indices
+    
+    return alignment_string
+    # return start_index1, end_index1, start_index2, end_index2
+    
+    
+    
+    
+def clash():
+    return pd.read_csv("data/processed/clash/clash_parsed.csv")

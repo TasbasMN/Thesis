@@ -298,7 +298,7 @@ def find_CLASH_V_sites(df, threshold=11):
         corresponding row meets the threshold condition and the "flag_column" value is None, and 0 otherwise.
     """
 
-    mask = (df["pred_no_of_bp"] >= threshold) & df["flag_column"].isnull()
+    mask = (df["pred_num_basepairs"] >= threshold) & df["flag_column"].isnull()
 
     df["pred_type_5"] = mask.astype(int)
 
