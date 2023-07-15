@@ -2,6 +2,5 @@
 .ipynb_checkpoints/**
 .obsidian/**
 results/**
-data/raw/targetscan/targetscan_all_predictions.txt/
-data/raw/targetscan/targetscan_all_predictions_big.txt
+data/**
 scripts/__pycache__/**

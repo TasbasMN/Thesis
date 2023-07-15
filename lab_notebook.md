@@ -10,14 +10,40 @@
 - [x] figure out a way to implement target_conservation (TargetScan uses Pct)
 
 
+-sigprofilertopography 21 vcf
+
+
+
+## 15 June - 6 July 2023
+
+- deprecated nucleotide_toolkit.py
+- deprecated utilsv2_for_jupyter.py 
+- created utils_latest.py that contains all the helper functions
+
+
+todo:
+ dot bracket şemasını printleyecek metod. ortaya git & işaretini bul, mismatchlere karşı satıra space ekle
+     df = find_CLASH_V_sites(df) flag columnu 1 yapmıyor
+
+düzeldikten sonra CLASH type trueleri bizim clash type predictionlarla eşleştir, karşılığına bak
+yeni kolon fikri: RNAduplex'ten gelen satır sayısı
+
+
+3 algoritmadan gelen sonuçları yan yana koy karşılaştırr
+yeni kolonlar ekle
+
+ 
+## 8-15 June 2023
+
+- merge_pos_and_neg_data.ipynb shows how the previous seed match heuristic isn't working
+- generate_data shows the steps of the data processing pipeline
+- merge_pos_and_neg_data
+
 
 ## 20-27 April 2023
 
 - revamped data folder
 - new data, grosswendt 2014
-
-
-
 
 
 opsiyonel:
@@ -26,18 +52,11 @@ opsiyonel:
 - https://compgen.bio.ub.edu/datasets/454/docs/Parameters.html
 
 
-fonksiyonları birleştirip sonuç df'ini hazırla
-
-negatif dataseti hallet
-
-build xgb
-
 breast cancer vcf'lerini indir, vcfteki adresten sekansı çek
 
 çok sonraki işler:
 - signaturelerle ilişkilendirilmesi
 - sig based miRNA binding
-
 
 
 13 Nisan

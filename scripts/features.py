@@ -301,7 +301,7 @@ def find_CLASH_V_sites(df, threshold=11):
     mask = (df["pred_num_basepairs"] >= threshold) & df["flag_column"].isnull()
 
     df["pred_type_5"] = mask.astype(int)
-
+    
     return df
 
 
@@ -468,7 +468,6 @@ def find_clash_types(df, find_noncanonical=False, drop_flag_column=True):
     df = find_CLASH_II_sites(df)
     df = find_CLASH_III_sites(df)
     df = find_CLASH_IV_sites(df)
-    df = find_CLASH_V_sites(df)
 
     if find_noncanonical:
         df = find_compensatory_sites(df)
