@@ -28,7 +28,8 @@ def invoke_rnaduplex(long_sequence: str, short_sequence: str, energy_range: floa
     start_short, end_short = map(int, first_line[3].split(","))
     energy = float(first_line[-1].strip("()"))
 
-    return start_long, end_long, dot_bracket_long, start_short, end_short, dot_bracket_short, energy
+# -1's here convert biological coordinates into 0-index coordinates
+    return start_long-1, end_long-1, dot_bracket_long, start_short-1, end_short-1, dot_bracket_short, energy
 
 
 
@@ -36,7 +37,6 @@ def find_matches_with_rnaduplex(df):
 
     mrna_starts = []
     mrna_ends = []
-    # mrna_dot_brackets = []
     mirna_starts = []
     mirna_ends = []
     mirna_dot_brackets = []
@@ -48,7 +48,6 @@ def find_matches_with_rnaduplex(df):
 
         mrna_starts.append(start_long)
         mrna_ends.append(end_long)
-        # mrna_dot_brackets.append(dot_bracket_long)
         mirna_starts.append(start_short)
         mirna_ends.append(end_short)
         mirna_dot_brackets.append(dot_bracket_short)
@@ -122,6 +121,10 @@ def generate_match_count_columns(df):
     return df
 
 
+def reverse_complement_rna_to_dna(rna_sequence):
+    complement = {'A': 'T', 'U': 'A', 'C': 'G', 'G': 'C'}
+    reverse_seq = rna_sequence[::-1]
+    return ''.join(complement[base] for base in reverse_seq)
 
 
 ######
@@ -304,5 +307,225 @@ def generate_close_proximity_column(df: pd.DataFrame, m: int = 13, n: int = 35) 
     
     # Set the corresponding values to 1.
     df.loc[df_filter, "close_proximity"] = 1
+
+    return df
+
+
+
+################
+# 7_process_vcf.ipynb
+
+def get_nucleotides_in_interval(chrom, start, end):
+    file_path = f"fasta/grch37/Homo_sapiens.GRCh37.dna.chromosome.{chrom}.fa"
+    with open(file_path, 'r') as file:
+        file.readline()
+        byte_position = file.tell()
+        line_length = len(file.readline().strip())
+        start_offset = start - 1
+        end_offset = end - 1
+        num_start_new_lines = start_offset // line_length
+        num_end_new_lines = end_offset // line_length
+        start_byte_position = byte_position + start_offset + num_start_new_lines
+        end_byte_position = byte_position + end_offset + num_end_new_lines
+        file.seek(start_byte_position)
+
+        # Read the nucleotides in the interval
+        nucleotides = file.read(end_byte_position - start_byte_position + 1)
+
+    # Remove newlines from the nucleotides
+    nucleotides = nucleotides.replace('\n', '')
+
+    return nucleotides
+
+
+def get_nucleotide_at_position(chrom, position):
+    file_path = f"fasta/grch37/Homo_sapiens.GRCh37.dna.chromosome.{chrom}.fa"
+    with open(file_path, 'r') as file:
+        file.readline()
+        byte_position = file.tell()
+        line_length = len(file.readline().strip())
+        offset = position - 1
+        num_new_lines = offset // line_length
+        byte_position = byte_position + offset + num_new_lines
+        file.seek(byte_position)
+
+        # Read the nucleotide at the position
+        nucleotide = file.read(1)
+    return nucleotide
+
+def invoke_rnaduplex_for_vcfs(long_sequence: str, short_sequence: str, energy_range: float = 5.0,
+                     rnaduplex_location: str = "/usr/bin/RNAduplex") -> tuple:
+
+    input_sequence = f"{long_sequence}\n{short_sequence}".encode()
+
+    rnaduplex_subprocess = subprocess.Popen(
+        [rnaduplex_location, "-e", f"{energy_range}", "-s"],
+        stdout=subprocess.PIPE,
+        stdin=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    output, error = rnaduplex_subprocess.communicate(input=input_sequence)
+    rnaduplex_subprocess.wait()
+
+    first_line = output.decode().split("\n")[0].split()
+
+    dot_bracket_long, dot_bracket_short = first_line[0].split("&")
+    start_long, end_long = map(int, first_line[1].split(","))
+    start_short, end_short = map(int, first_line[3].split(","))
+    energy = float(first_line[-1].strip("()"))
+
+# -1's here convert biological coordinates into 0-index coordinates
+    return start_long-1, end_long, dot_bracket_long, start_short-1, end_short, dot_bracket_short, energy
+
+def find_matches_for_vcfs(df, mutated=False):
+    
+    mirna_df = pd.read_csv("data/processed/mirbase/mirbase22.csv")
+    mirna_df["sequence"] = mirna_df["sequence"].apply(reverse_complement_rna_to_dna)
+    
+    mrna_starts = []
+    mrna_ends = []
+    mirna_starts = []
+    mirna_ends = []
+    mrna_dot_brackets =[]
+    mirna_dot_brackets = []
+    energies = []
+    identifiers = []
+    
+    mrna_sequences = []
+    mirna_sequences = []
+    
+    mirna_accessions = []
+
+    for _, row in df.iterrows():
+        for _, mirna_row in mirna_df.iterrows():
+            mirna_sequence = mirna_row['sequence']
+            mrna_sequence = row['mutated_sequence'] if mutated else row['sequence']
+            start_long, end_long, dot_bracket_long, start_short, end_short, dot_bracket_short, energy = invoke_rnaduplex_for_vcfs(
+                mrna_sequence, mirna_sequence)
+
+            mrna_starts.append(start_long)
+            mrna_ends.append(end_long)
+            mirna_starts.append(start_short)
+            mirna_ends.append(end_short)
+            mrna_dot_brackets.append(dot_bracket_long)
+            mirna_dot_brackets.append(dot_bracket_short)
+            energies.append(energy)
+            
+            mrna_sequences.append(mrna_sequence)
+            mirna_sequences.append(mirna_sequence)
+            
+            mirna_accessions.append(mirna_row.accession)
+            
+            identifiers.append(f"{row.id}_{mirna_row.accession}") 
+
+            print(f"Processing row {row.name} in df with mirna_row {mirna_row.accession} in mirna_df")
+
+    df = pd.DataFrame({
+        "id": identifiers,
+        "mrna_start": mrna_starts,
+        "mrna_end": mrna_ends,
+        "mrna_sequence": mrna_sequences,
+        "mirna_accession": mirna_accessions,
+        "mirna_start": mirna_starts,
+        "mirna_end": mirna_ends,
+        "mirna_sequence": mirna_sequences,
+        "mrna_dot_bracket_5to3": mrna_dot_brackets,
+        "mirna_dot_bracket_5to3": mirna_dot_brackets,
+        "pred_energy": energies
+        
+    })
+
+    return df
+
+################
+# 8_adding_feature_cols
+
+def generate_alignment_string_from_dot_bracket(df):
+    full_strings = []
+    for _, row in df.iterrows():
+        start_string = (row.mirna_start) * "0"
+        mid_string = row["mirna_dot_bracket_5to3"].replace(".", "0").replace(")", "1")
+        end_string = (len(row.mirna_sequence) - row.mirna_end -1) * "0"
+        
+        full_string = start_string + mid_string + end_string
+        full_strings.append(full_string)
+
+    df["alignment_string"] = full_strings
+
+    return df
+        
+def generate_match_count_columns(df):
+
+    def count_ones(str, seed=False):
+        return str[1:7].count("1") if seed else str.count("1")
+
+    df["pred_num_basepairs"] = df["alignment_string"].apply(count_ones)
+
+    df["pred_seed_basepairs"] = df["alignment_string"].apply(
+        count_ones, seed=True)
+
+    return df
+
+def add_ta_sps_columns(df):
+    # Generate temporary seed column
+    df["seed"] = df["mirna_sequence"].str[1:8].str.replace("T", "U")
+    # Read ta sps data
+    ta_sps_df = pd.read_csv("data/processed/ta_sps/ta_sps.csv", usecols=["seed_8mer", "ta_log10", "sps_mean"])
+    ta_sps_df = ta_sps_df.rename(columns={"seed_8mer": "seed"})
+    # Merge dataframes on seed column
+    df = df.merge(ta_sps_df, on="seed", how="left")
+    # Drop temporary column
+    df.drop(columns=["seed"], inplace=True)
+
+    return df
+
+def add_mirna_conservation_column(df):
+    targetscan = pd.read_csv("data/processed/targetscan/targetscan.csv")
+    targetscan = targetscan.rename(columns={"accession": "mirna_accession", "conservation": "mirna_conservation"})
+    targetscan = targetscan[["mirna_accession", "mirna_conservation"]]
+    df = df.merge(targetscan, on="mirna_accession", how="left")
+    return df
+
+def find_seed_type(df):
+    
+    def check_nth_character(row):
+        sequence = row["mrna_sequence"]
+        mirna_end = row["mrna_end"] - 1
+        return "x" if mirna_end >= len(sequence) else int(sequence[mirna_end] == "A")
+
+    df["anchor_a"] = df.apply(check_nth_character, axis=1)
+
+    df["6mer_seed"] = (df["alignment_string"].str[1:7].str.count("0") == 0).astype(int)
+    df["match_8"] = (df["alignment_string"].str[7] == "1").astype(int)
+    df["6mer_seed_1_mismatch"] = (df["alignment_string"].str[1:7].str.count("0") == 1).astype(int)
+    
+    df["compensatory_site"] = (df["alignment_string"].str[12:17].str.count("0") == 0).astype(int)
+    
+    df["supplementary_site"] = (df["alignment_string"].str[12:16].str.count("0") == 0).astype(int)
+    df["supplementary_site_2"] = (df["alignment_string"].str[16:21].str.count("0") == 0).astype(int)
+    df["empty_seed"] = (df["alignment_string"].str[1:8].str.count("1") == 0).astype(int)
+    
+    
+    df["9_consecutive_match_anywhere"] = (df["alignment_string"]
+                                          .str
+                                          .contains("1{" + str(9) + ",}")
+                                          .astype(int))
+    
+    
+    
+    return df
+
+
+def generate_seed_type_columns(df):
+    df['seed_8mer'] = ((df['anchor_a'] == 1) & (df['6mer_seed'] == 1) & (df['match_8'] == 1)).astype(int)
+    df['seed_7mer_a1'] = ((df['anchor_a'] == 1) & (df['6mer_seed'] == 1) & (df['match_8'] == 0)).astype(int)
+    df['seed_7mer_m8'] = ((df['anchor_a'] == 0) & (df['6mer_seed'] == 1) & (df['match_8'] == 1) & (df['supplementary_site'] == 0) & (df['supplementary_site_2'] == 0)).astype(int)
+    df['seed_compensatory'] = ((df['compensatory_site'] == 1) & (df['6mer_seed_1_mismatch'] == 1) & (df['match_8'] == 1)).astype(int)
+
+    df['seed_clash_2'] = ((df['supplementary_site'] == 1) & (df['6mer_seed'] == 1) & (df['match_8'] == 1)).astype(int)
+    df['seed_clash_3'] = ((df['supplementary_site_2'] == 1) & (df['6mer_seed'] == 1) & (df['match_8'] == 1)).astype(int)
+    df['seed_clash_4'] = ((df['empty_seed'] == 1) & (df['9_consecutive_match_anywhere'] == 1)).astype(int)
+    df['seed_clash_5'] = ((df['pred_num_basepairs'] > 10) & (df['6mer_seed'] == 0)).astype(int)
 
     return df

@@ -1,16 +1,44 @@
 ## TODO:
 
-- küçük harf olan fastalarda script patlar
-- çizgi olan fastalarda script patlar
-- N olan fastalarda script patlar
-- discarded featureleri biz de deneyip sonucu etkilemediğini görsek mi?
-
 
 - [x] target_abundance kolonu eklenecek (hedef UTR'da o miRNA'nın kaç tane non-overlapping hedefi var?)
 - [x] figure out a way to implement target_conservation (TargetScan uses Pct)
 
+TODO:
 
--sigprofilertopography 21 vcf
+close_proximity column on step 8 not working currently
+double check mre_region on steps 1 and 8
+
+week of 24 july:
+
+- updated preprocess_clash.ipynb
+  - refactored code
+  - added full sequences and chr:start:end values using pyensembl
+  - converted all biological indices to 0-based
+
+- added accessions to the mirbase csv
+
+
+!!!
+generate_positive_datada -1'e kadar olanları tut gerisini drop
+
+pred_energy scale etmeden çalıştır
+
+xgb additional hangi parametreleri tune edebiliriz
+
+
+extend window to 30 from 11
+check_nth_character check it
+
+
+case 1: miRNA'ya düşen mutasyon
+case 2: mRNA'ya düşen mutasyon
+
+
+
+
+
+
 
 
 

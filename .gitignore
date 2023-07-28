@@ -4,3 +4,4 @@
 results/**
 data/**
 scripts/__pycache__/**
+fasta/**
