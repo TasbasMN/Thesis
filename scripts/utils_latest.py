@@ -126,6 +126,11 @@ def reverse_complement_rna_to_dna(rna_sequence):
     reverse_seq = rna_sequence[::-1]
     return ''.join(complement[base] for base in reverse_seq)
 
+def reverse_complement_dna_to_rna(rna_sequence):
+    complement = {'A': 'U', 'T': 'A', 'C': 'G', 'G': 'C'}
+    reverse_seq = rna_sequence[::-1]
+    return ''.join(complement[base] for base in reverse_seq)
+
 
 ######
 
@@ -437,6 +442,38 @@ def find_matches_for_vcfs(df, mutated=False):
     })
 
     return df
+
+
+
+def augment_vcf(vcf_df, sequence_offset=30):
+    """
+    Augments a VCF DataFrame by adding additional columns.
+
+    Args:
+        vcf_df (pandas.DataFrame): The input VCF DataFrame.
+        sequence_offset (int, optional): The offset used to fetch nucleotides in the sequence. Defaults to 30.
+
+    Returns:
+        pandas.DataFrame: The augmented VCF DataFrame.
+    """
+
+    # Add an 'id' column by combining 'chr', 'pos', 'ref', and 'alt' columns
+    vcf_df.loc[:, "id"] = vcf_df.apply(lambda row: f"{row['chr']}_{row['pos']}_{row['ref']}_{row['alt']}", axis=1)
+
+    # Add a 'fetched_nucleotides' column by fetching nucleotides at the specified position
+    vcf_df.loc[:, 'fetched_nucleotides'] = vcf_df.apply(lambda x: get_nucleotide_at_position(x['chr'], x['pos']), axis=1)
+
+    # Add an 'is_nucleotides_same' column to check if fetched nucleotides are the same as 'ref'
+    vcf_df.loc[:, 'is_nucleotides_same'] = vcf_df["fetched_nucleotides"] == vcf_df["ref"]
+
+    # Add a 'sequence' column by fetching nucleotides in the interval [pos-sequence_offset, pos+sequence_offset]
+    vcf_df.loc[:, 'sequence'] = vcf_df.apply(lambda x: get_nucleotides_in_interval(x['chr'], x['pos']-sequence_offset, x["pos"]+sequence_offset), axis=1)
+
+    # Add a 'mutated_sequence' column by replacing the nucleotide at the sequence_offset position with 'alt'
+    vcf_df.loc[:,'mutated_sequence'] = vcf_df.apply(lambda row: row['sequence'][:sequence_offset] + row['alt'] + row['sequence'][sequence_offset+1:], axis=1)
+
+    return vcf_df
+
 
 ################
 # 8_adding_feature_cols

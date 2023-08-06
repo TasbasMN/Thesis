@@ -4,32 +4,47 @@
 - [x] target_abundance kolonu eklenecek (hedef UTR'da o miRNA'nın kaç tane non-overlapping hedefi var?)
 - [x] figure out a way to implement target_conservation (TargetScan uses Pct)
 
-TODO:
-
-close_proximity column on step 8 not working currently
-double check mre_region on steps 1 and 8
-
-week of 24 july:
-
-- updated preprocess_clash.ipynb
-  - refactored code
-  - added full sequences and chr:start:end values using pyensembl
-  - converted all biological indices to 0-based
-
-- added accessions to the mirbase csv
+# 2- 9 August 2023
 
 
-!!!
-generate_positive_datada -1'e kadar olanları tut gerisini drop
-
-pred_energy scale etmeden çalıştır
-
-xgb additional hangi parametreleri tune edebiliriz
 
 
-extend window to 30 from 11
-check_nth_character check it
+## todo
+rename midpoint (mrna percentage?)
+rename close proximity
+fetch annotations
+convert grch38 miRNAs into grch37 (cli tool liftover
+https://github.com/sritchie73/liftOverPlink/blob/master/README.md)
 
+parallelize find_matches_for_vcf function (abstractten sonra)
+
+xgb neden floating point output veriyor?
+mirna_conservation na'leri sekansla en yakın olan mirna'nın değerini alacak şekilde doldur
+
+check au_content function
+
+convert 1-0 predictions back into floating point and find most different ones & showcase them with their dot bracket scheme
+
+2 figures, feature importance & showcase
+
+
+## this week:
+
+midpoint ve close proximity kolonları kaldırıldı, çünkü transkript temelli değil DNA temelli gidiyoruz.
+
+  örn: chr1 50m-50m+8 gibi pozisyonlarımız var. Bu pozisyonun midpointini, yani transkript üzerindeki görece yerini (0-1 arası) elde edemiyorum.  
+
+- removed pred_energy scaling
+- extended extension window for vcf positions from 11 to 30
+- added few more hyperparams to tune
+- in generate_positive_data, dropped all the results that have at least 2 difference between predicted & true positions
+- removed _mutated suffix from mutated vcf entries as they have is_mutated column
+- implemented sana's pipeline and predicted 2 rows with it
+- case 1 almost completed
+- case 2 file preprocess script completed and added into its respective folder in /data
+- case 2 mutation processing script completed
+
+  
 
 case 1: miRNA'ya düşen mutasyon
 case 2: mRNA'ya düşen mutasyon
@@ -39,7 +54,14 @@ case 2: mRNA'ya düşen mutasyon
 
 
 
+## 21 - 26 july 2023:
 
+- updated preprocess_clash.ipynb
+  - refactored code
+  - added full sequences and chr:start:end values using pyensembl
+  - converted all biological indices to 0-based
+
+- added accessions to the mirbase csv
 
 
 ## 15 June - 6 July 2023
