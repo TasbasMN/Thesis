@@ -321,7 +321,7 @@ def generate_close_proximity_column(df: pd.DataFrame, m: int = 13, n: int = 35) 
 # 7_process_vcf.ipynb
 
 def get_nucleotides_in_interval(chrom, start, end):
-    file_path = f"fasta/grch37/Homo_sapiens.GRCh37.dna.chromosome.{chrom}.fa"
+    file_path = f"data/fasta/grch37/Homo_sapiens.GRCh37.dna.chromosome.{chrom}.fa"
     with open(file_path, 'r') as file:
         file.readline()
         byte_position = file.tell()
@@ -344,7 +344,7 @@ def get_nucleotides_in_interval(chrom, start, end):
 
 
 def get_nucleotide_at_position(chrom, position):
-    file_path = f"fasta/grch37/Homo_sapiens.GRCh37.dna.chromosome.{chrom}.fa"
+    file_path = f"data/fasta/grch37/Homo_sapiens.GRCh37.dna.chromosome.{chrom}.fa"
     with open(file_path, 'r') as file:
         file.readline()
         byte_position = file.tell()

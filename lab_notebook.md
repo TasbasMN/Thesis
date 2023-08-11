@@ -8,6 +8,9 @@
 
 
 
+check if regressor & classifier yields the same result
+
+
 
 ## todo
 rename midpoint (mrna percentage?)

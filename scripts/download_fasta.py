@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 base_url = "https://ftp.ensembl.org/pub/grch37/release-110/fasta/homo_sapiens/dna/"
 chromosome_numbers = list(range(1, 23)) + ["MT", "X", "Y"]
-download_directory = "fasta/grch37/"  # Replace with the desired directory path
+download_directory = "data/fasta/grch37/"  # Replace with the desired directory path
 
 # Create the download directory if it doesn't exist
 os.makedirs(download_directory, exist_ok=True)
